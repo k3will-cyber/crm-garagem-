@@ -1,0 +1,22 @@
+[build]
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Redireciona chamadas /api/* para o backend em produção
+# Altere a URL abaixo para o endereço do seu backend (Render, Railway, etc.)
+[[redirects]]
+  from = "/api/*"
+  to = "https://SEU-BACKEND.onrender.com/api/:splat"
+  # ⚠️ Altere a URL acima para a URL do seu backend no Render após o deploy
+  # Ex: https://crm-garagem-backend.onrender.com/api/:splat
+  status = 200
+  force = true
+
+# Redireciona todas as outras rotas para o index.html (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
