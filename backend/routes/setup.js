@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const sequelize = require('../config/database');
 const db = require('../models');
 const partsData = require('../seed-data/parts');
+const meecProductsData = require('../seed-data/meecProducts');
 
 /**
  * POST /api/setup
@@ -63,6 +64,26 @@ router.post('/', async (req, res) => {
       console.log(`[Setup] ${imported} parts imported successfully`);
     } else {
       console.log(`[Setup] ${existingParts} parts already exist, skipping import`);
+    }
+
+    // Step 4: Seed MEEC stock products
+    const existingMeec = await db.MeecProduct.count();
+    if (existingMeec === 0) {
+      console.log(`[Setup] Seeding ${meecProductsData.length} MEEC stock products...`);
+
+      const batchSize = 10;
+      let meecImported = 0;
+
+      for (let i = 0; i < meecProductsData.length; i += batchSize) {
+        const batch = meecProductsData.slice(i, i + batchSize);
+        await db.MeecProduct.bulkCreate(batch, { ignoreDuplicates: true });
+        meecImported += batch.length;
+      }
+
+      result.meecImported = meecImported;
+      console.log(`[Setup] ${meecImported} MEEC products imported successfully`);
+    } else {
+      console.log(`[Setup] ${existingMeec} MEEC products already exist, skipping import`);
     }
 
     result.time = Date.now() - startTime;

@@ -1,34 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken: authMiddleware, authorize } = require('../middleware/auth');
-const db = require('../models');
+const { MeecProduct } = require('../models');
 
-// Get all estoque products
+const CATEGORIES = [
+  'oleo', 'filtro', 'freio', 'ignicao', 'iluminacao',
+  'correia', 'bateria', 'suspensao', 'arrefecimento',
+  'diversos', 'kit', 'motor', 'cambio', 'direcao', 'geral', 'servico'
+];
+
+// Get all products
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const products = await db.sequelize.query(
-      'SELECT * FROM estoque ORDER BY categoria, nome',
-      { type: db.sequelize.QueryTypes.SELECT }
-    );
+    const products = await MeecProduct.findAll({
+      order: [
+        ['categoria', 'ASC'],
+        ['nome', 'ASC']
+      ]
+    });
     res.json(products);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('[MEEC Stock] Error fetching products:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
 // Get product by ID
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const [product] = await db.sequelize.query(
-      'SELECT * FROM estoque WHERE id = ?',
-      { replacements: [req.params.id], type: db.sequelize.QueryTypes.SELECT }
-    );
+    const product = await MeecProduct.findByPk(req.params.id);
     if (!product) return res.status(404).json({ msg: 'Produto não encontrado' });
     res.json(product);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('[MEEC Stock] Error fetching product:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
@@ -36,138 +41,120 @@ router.get('/:id', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, authorize('admin', 'manager'), async (req, res) => {
   try {
     const { nome, descricao, preco, categoria, quantidade, ativo } = req.body;
-    if (!nome || nome.trim() === '') return res.status(400).json({ msg: 'Nome é obrigatório' });
+    if (!nome || nome.trim() === '') {
+      return res.status(400).json({ msg: 'Nome é obrigatório' });
+    }
 
-    const result = await db.sequelize.query(
-      `INSERT INTO estoque (nome, descricao, preco, categoria, quantidade, ativo, tenant_id, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now'))`,
-      {
-        replacements: [
-          nome.trim(),
-          descricao || '',
-          preco || 0,
-          categoria || 'geral',
-          quantidade != null ? quantidade : 0,
-          ativo != null ? ativo : 1
-        ],
-        type: db.sequelize.QueryTypes.INSERT
-      }
-    );
-
-    const [newProduct] = await db.sequelize.query(
-      'SELECT * FROM estoque WHERE id = ?',
-      { replacements: [result[0]], type: db.sequelize.QueryTypes.SELECT }
-    );
+    const newProduct = await MeecProduct.create({
+      nome: nome.trim(),
+      descricao: descricao || '',
+      preco: preco || 0,
+      categoria: categoria || 'geral',
+      quantidade: quantidade != null ? quantidade : 0,
+      ativo: ativo != null ? ativo : 1
+    });
 
     console.log(`[MEEC Stock] Produto "${nome}" criado no estoque`);
     res.status(201).json(newProduct);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('[MEEC Stock] Error creating product:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
 // Update product
 router.put('/:id', authMiddleware, authorize('admin', 'manager'), async (req, res) => {
   try {
+    const product = await MeecProduct.findByPk(req.params.id);
+    if (!product) return res.status(404).json({ msg: 'Produto não encontrado' });
+
     const { nome, descricao, preco, categoria, quantidade, ativo } = req.body;
+    const updates = {};
+    if (nome !== undefined) updates.nome = nome.trim();
+    if (descricao !== undefined) updates.descricao = descricao;
+    if (preco !== undefined) updates.preco = preco;
+    if (categoria !== undefined) updates.categoria = categoria;
+    if (quantidade !== undefined) updates.quantidade = quantidade;
+    if (ativo !== undefined) updates.ativo = ativo;
 
-    const [existing] = await db.sequelize.query(
-      'SELECT id FROM estoque WHERE id = ?',
-      { replacements: [req.params.id], type: db.sequelize.QueryTypes.SELECT }
-    );
-    if (!existing) return res.status(404).json({ msg: 'Produto não encontrado' });
-
-    const updates = [];
-    const params = [];
-
-    if (nome !== undefined) { updates.push('nome = ?'); params.push(nome.trim()); }
-    if (descricao !== undefined) { updates.push('descricao = ?'); params.push(descricao); }
-    if (preco !== undefined) { updates.push('preco = ?'); params.push(preco); }
-    if (categoria !== undefined) { updates.push('categoria = ?'); params.push(categoria); }
-    if (quantidade !== undefined) { updates.push('quantidade = ?'); params.push(quantidade); }
-    if (ativo !== undefined) { updates.push('ativo = ?'); params.push(ativo); }
-
-    if (updates.length === 0) return res.status(400).json({ msg: 'Nenhum campo para atualizar' });
-
-    params.push(req.params.id);
-    await db.sequelize.query(
-      `UPDATE estoque SET ${updates.join(', ')} WHERE id = ?`,
-      { replacements: params, type: db.sequelize.QueryTypes.UPDATE }
-    );
-
-    const [updated] = await db.sequelize.query(
-      'SELECT * FROM estoque WHERE id = ?',
-      { replacements: [req.params.id], type: db.sequelize.QueryTypes.SELECT }
-    );
-
+    await product.update(updates);
     console.log(`[MEEC Stock] Produto #${req.params.id} atualizado`);
-    res.json(updated);
+    res.json(product);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('[MEEC Stock] Error updating product:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
 // Delete product
 router.delete('/:id', authMiddleware, authorize('admin'), async (req, res) => {
   try {
-    const result = await db.sequelize.query(
-      'DELETE FROM estoque WHERE id = ?',
-      { replacements: [req.params.id], type: db.sequelize.QueryTypes.DELETE }
-    );
-    if (result[1] === 0) return res.status(404).json({ msg: 'Produto não encontrado' });
+    const product = await MeecProduct.findByPk(req.params.id);
+    if (!product) return res.status(404).json({ msg: 'Produto não encontrado' });
+
+    await product.destroy();
     console.log(`[MEEC Stock] Produto #${req.params.id} removido`);
     res.json({ msg: 'Produto removido do estoque' });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('[MEEC Stock] Error deleting product:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
 // Get categories
 router.get('/meta/categorias', authMiddleware, async (req, res) => {
   try {
-    const categories = await db.sequelize.query(
-      "SELECT DISTINCT categoria FROM estoque WHERE categoria IS NOT NULL AND categoria != '' ORDER BY categoria",
-      { type: db.sequelize.QueryTypes.SELECT }
-    );
+    const categories = await MeecProduct.findAll({
+      attributes: ['categoria'],
+      group: ['categoria'],
+      order: [['categoria', 'ASC']],
+      raw: true
+    });
     res.json(categories.map(c => c.categoria));
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('[MEEC Stock] Error fetching categories:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
 // Get summary/stats
 router.get('/meta/summary', authMiddleware, async (req, res) => {
   try {
-    const total = await db.sequelize.query(
-      'SELECT COUNT(*) as total FROM estoque',
-      { type: db.sequelize.QueryTypes.SELECT }
-    );
-    const active = await db.sequelize.query(
-      'SELECT COUNT(*) as total FROM estoque WHERE ativo = 1',
-      { type: db.sequelize.QueryTypes.SELECT }
-    );
-    const valorTotal = await db.sequelize.query(
-      'SELECT SUM(preco * quantidade) as valor FROM estoque',
-      { type: db.sequelize.QueryTypes.SELECT }
-    );
-    const categorias = await db.sequelize.query(
-      'SELECT categoria, COUNT(*) as count, SUM(quantidade) as totalQty FROM estoque GROUP BY categoria ORDER BY count DESC',
-      { type: db.sequelize.QueryTypes.SELECT }
-    );
+    const total = await MeecProduct.count();
+    const ativos = await MeecProduct.count({ where: { ativo: 1 } });
+
+    const valorResult = await MeecProduct.findAll({
+      attributes: [
+        [MeecProduct.sequelize.fn('SUM', MeecProduct.sequelize.literal('preco * quantidade')), 'valor']
+      ],
+      raw: true
+    });
+    const valorEstoque = parseFloat(valorResult[0]?.valor) || 0;
+
+    const categorias = await MeecProduct.findAll({
+      attributes: [
+        'categoria',
+        [MeecProduct.sequelize.fn('COUNT', MeecProduct.sequelize.col('id')), 'count'],
+        [MeecProduct.sequelize.fn('SUM', MeecProduct.sequelize.col('quantidade')), 'totalQty']
+      ],
+      group: ['categoria'],
+      order: [[MeecProduct.sequelize.literal('count'), 'DESC']],
+      raw: true
+    });
 
     res.json({
-      total: total[0].total,
-      ativos: active[0].total,
-      valorEstoque: valorTotal[0].valor || 0,
-      categorias
+      total,
+      ativos,
+      valorEstoque,
+      categorias: categorias.map(c => ({
+        categoria: c.categoria,
+        count: parseInt(c.count),
+        totalQty: parseInt(c.totalQty) || 0
+      }))
     });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('[MEEC Stock] Error fetching summary:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
