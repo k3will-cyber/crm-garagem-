@@ -13,7 +13,7 @@ const meecProductsData = require('../seed-data/meecProducts');
  */
 router.post('/', async (req, res) => {
   const startTime = Date.now();
-  const result = { synced: false, adminCreated: false, partsImported: 0, error: null, time: 0 };
+  const result = { synced: false, adminCreated: false, partsImported: 0, meecImported: 0, error: null, time: 0 };
 
   try {
     console.log('[Setup] Starting database sync...');
