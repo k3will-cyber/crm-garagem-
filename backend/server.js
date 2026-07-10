@@ -16,6 +16,8 @@ const { authenticateToken } = require('./middleware/auth');
 const { initSocket } = require('./socket');
 const { initNotificationService } = require('./services/notificationService');
 const publicRoutes = require('./routes/public');
+const bcrypt = require('bcryptjs');
+const db = require('./models');
 
 require('dotenv').config();
 
@@ -67,6 +69,34 @@ const server = app.listen(PORT, () => {
 
   // Sync database in background (non-blocking)
   sequelize.sync()
-    .then(() => console.log('Database synced'))
+    .then(async () => {
+      console.log('Database synced');
+      await seedAdminUser();
+    })
     .catch(err => console.log('Database sync error: ' + err.message));
 });
+
+/**
+ * Auto-seed admin user if no users exist in the database
+ */
+async function seedAdminUser() {
+  try {
+    const userCount = await db.User.count();
+    if (userCount === 0) {
+      console.log('No users found. Creating default admin user...');
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('admin123', salt);
+      await db.User.create({
+        name: 'Admin',
+        email: 'admin@crmgaragem.com',
+        password: hashedPassword,
+        role: 'admin',
+        isActive: true,
+        phone: '(11) 99999-9999'
+      });
+      console.log('Admin user created: admin@crmgaragem.com / admin123');
+    }
+  } catch (err) {
+    console.error('Auto-seed error:', err.message);
+  }
+}
