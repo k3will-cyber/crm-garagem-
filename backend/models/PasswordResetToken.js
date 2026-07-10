@@ -12,7 +12,7 @@ const PasswordResetToken = sequelize.define('PasswordResetToken', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Users',
+      model: 'crm_users',
       key: 'id'
     }
   },

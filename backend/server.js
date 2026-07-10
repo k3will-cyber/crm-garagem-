@@ -11,7 +11,6 @@ const partsRoutes = require('./routes/parts');
 const leadsRoutes = require('./routes/leads');
 const usersRoutes = require('./routes/users');
 const partRequestsRoutes = require('./routes/partRequests');
-const meecStockRoutes = require('./routes/meecStock');
 const { authenticateToken } = require('./middleware/auth');
 const { initSocket } = require('./socket');
 const { initNotificationService } = require('./services/notificationService');
@@ -58,8 +57,6 @@ app.use('/api/parts', authenticateToken, partsRoutes);
 app.use('/api/leads', authenticateToken, leadsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/part-requests', authenticateToken, partRequestsRoutes);
-app.use('/api/meec-stock', authenticateToken, meecStockRoutes);
-
 // Wildcard handler to serve React SPA
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
