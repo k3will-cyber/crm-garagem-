@@ -15,6 +15,10 @@ const Client = sequelize.define('Client', {
     type: DataTypes.STRING
   },
   email: {
+    type: DataTypes.STRING,
+    unique: true
+  },
+  password: {
     type: DataTypes.STRING
   },
   address: {
@@ -24,7 +28,7 @@ const Client = sequelize.define('Client', {
     type: DataTypes.TEXT
   }
 }, {
-  timestamps: false
+  timestamps: true
 });
 
 Client.associate = (models) => {

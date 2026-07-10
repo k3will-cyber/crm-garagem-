@@ -462,7 +462,10 @@ router.get('/dashboard/stats', authMiddleware, async (req, res) => {
       totalRevenue,
       wonLeads,
       totalOrders,
-      deliveredOrders
+      deliveredOrders,
+      totalParts,
+      totalInventoryValue,
+      partsByCategory
     ] = await Promise.all([
       db.Lead.count(),
       db.Lead.count({ where: { status: 'new' } }),
@@ -473,7 +476,36 @@ router.get('/dashboard/stats', authMiddleware, async (req, res) => {
       db.ServiceOrder.sum('totalAmount', { where: { status: { [Op.in]: ['completed', 'delivered'] } } }),
       db.Lead.count({ where: { status: 'won' } }),
       db.ServiceOrder.count(),
-      db.ServiceOrder.count({ where: { status: 'delivered' } })
+      db.ServiceOrder.count({ where: { status: 'delivered' } }),
+      db.Part.count(),
+      db.Part.findAll().then(parts => 
+        parts.reduce((sum, p) => sum + (parseFloat(p.price) * p.stockQuantity), 0)
+      ),
+      db.Part.findAll({ attributes: ['sku'] }).then(parts => {
+        const catMap = {};
+        const catLabels = {
+          OLE: { label: 'Óleos', icon: '🛢️' },
+          FIL: { label: 'Filtros', icon: '🔧' },
+          FRE: { label: 'Freios', icon: '🛞' },
+          IGN: { label: 'Ignição', icon: '⚡' },
+          ILU: { label: 'Iluminação', icon: '💡' },
+          COR: { label: 'Correias', icon: '⛓️' },
+          BAT: { label: 'Baterias', icon: '🔋' },
+          SUS: { label: 'Suspensão', icon: '🏎️' },
+          REF: { label: 'Arrefecimento', icon: '🌡️' },
+          DIV: { label: 'Diversos', icon: '🧰' }
+        };
+        parts.forEach(p => {
+          const cat = p.sku ? p.sku.split('-')[0] : 'OUTROS';
+          catMap[cat] = (catMap[cat] || 0) + 1;
+        });
+        return Object.entries(catMap).map(([code, count]) => ({
+          code,
+          label: catLabels[code]?.label || code,
+          icon: catLabels[code]?.icon || '📦',
+          count
+        })).sort((a, b) => b.count - a.count);
+      })
     ]);
 
     res.json({
@@ -486,7 +518,10 @@ router.get('/dashboard/stats', authMiddleware, async (req, res) => {
       deliveredOrders,
       totalOrders,
       totalRevenue: totalRevenue || 0,
-      lowStockParts
+      lowStockParts,
+      totalParts,
+      totalInventoryValue: totalInventoryValue || 0,
+      partsByCategory
     });
   } catch (err) {
     console.error(err.message);

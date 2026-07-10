@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Wrench, CheckCircle, Clock, AlertCircle, ArrowLeft, Calendar, ChevronRight, Mail } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';

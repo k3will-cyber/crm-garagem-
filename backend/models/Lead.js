@@ -30,6 +30,8 @@ const Lead = sequelize.define('Lead', {
   notes: {
     type: DataTypes.TEXT
   }
+}, {
+  tableName: 'crm_leads'
 });
 
 module.exports = Lead;

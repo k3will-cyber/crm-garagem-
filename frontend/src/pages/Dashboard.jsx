@@ -9,6 +9,9 @@ import {
   DollarSign,
   Percent,
   ArrowRight,
+  Package,
+  ShoppingBag,
+  ExternalLink,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -135,6 +138,9 @@ export default function Dashboard() {
   const totalOrders = stats?.totalOrders ?? 0;
   const totalRevenue = stats?.totalRevenue ?? 0;
   const conversionRate = totalLeads > 0 ? (wonLeads / totalLeads) * 100 : 0;
+  const totalParts = stats?.totalParts ?? 0;
+  const totalInventoryValue = stats?.totalInventoryValue ?? 0;
+  const partsByCategory = stats?.partsByCategory || [];
 
   const monthlyRevenue = revenueData?.monthlyRevenue || [];
   const statusDistribution = revenueData?.statusDistribution || [];
@@ -236,7 +242,57 @@ export default function Dashboard() {
           color={COLORS.pink}
           bg="#fdf2f8"
         />
+        <StatCard
+          title="Peças em Estoque"
+          value={totalParts}
+          subtitle={`${lowStock.length > 0 ? lowStock.length + ' abaixo do mínimo' : 'todas OK'}`}
+          icon={Package}
+          color={COLORS.primary}
+          bg="#eff6ff"
+        />
+        <StatCard
+          title="Valor em Estoque"
+          value={formatCurrency(totalInventoryValue)}
+          subtitle="Preço de custo total"
+          icon={ShoppingBag}
+          color={COLORS.success}
+          bg="#ecfdf5"
+        />
       </div>
+
+      {/* Stock Overview */}
+      {partsByCategory.length > 0 && (
+        <div className="dashboard-grid" style={{ marginTop: 0, marginBottom: 24 }}>
+          <div className="dashboard-card">
+            <div className="dashboard-card-header">
+              <h3>📦 Estoque por Categoria</h3>
+              <span className="badge badge-blue">{totalParts} peças</span>
+            </div>
+            <div className="dashboard-card-body">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8, padding: 8 }}>
+                {partsByCategory.map(cat => (
+                  <div key={cat.code} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '10px 12px',
+                    background: 'var(--gray-50)',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '0.85rem',
+                    transition: 'all 200ms ease'
+                  }}>
+                    <span style={{ fontSize: '1.2rem' }}>{cat.icon}</span>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '0.82rem' }}>{cat.label}</div>
+                      <div style={{ color: 'var(--gray-500)', fontSize: '0.75rem' }}>{cat.count} itens</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Charts Row */}
       <div className="dashboard-grid">
@@ -369,6 +425,10 @@ export default function Dashboard() {
           <button className="quick-action-card" onClick={() => navigate('/service-orders')}>
             <FileText size={20} color={COLORS.purple} />
             <span>Ver OS</span>
+          </button>
+          <button className="quick-action-card" onClick={() => window.open('http://localhost:3000/#estoque', '_blank')}>
+            <ExternalLink size={20} color={COLORS.primary} />
+            <span>Estoque MEEC</span>
           </button>
         </div>
       </div>

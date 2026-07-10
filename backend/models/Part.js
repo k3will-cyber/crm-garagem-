@@ -37,7 +37,7 @@ const Part = sequelize.define('Part', {
     type: DataTypes.STRING
   }
 }, {
-  timestamps: false
+  timestamps: true
 });
 
 Part.associate = (models) => {

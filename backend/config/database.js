@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+const path = require('path');
 require('dotenv').config();
 
 let sequelize;
@@ -23,9 +24,10 @@ if (process.env.DATABASE_URL) {
   });
 } else {
   // Development: SQLite
+  const MEEC_DB_PATH = process.env.MEEC_DB_PATH || path.resolve(__dirname, '../../../garagem-do-mec-site/data/garagem.db');
   sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: process.env.NODE_ENV === 'test' ? ':memory:' : './database.sqlite',
+    storage: process.env.NODE_ENV === 'test' ? ':memory:' : MEEC_DB_PATH,
     logging: false,
   });
 }

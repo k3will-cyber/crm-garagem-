@@ -43,6 +43,49 @@ router.post('/', authMiddleware, async (req, res) => {
       estimatedValue,
       notes
     });
+
+    // Sync to MEEC leads table (same database, raw SQL)
+    try {
+      // Check for duplicates before inserting
+      const existing = await db.sequelize.query(`
+        SELECT id FROM leads WHERE (whatsapp = ? AND whatsapp != '' AND whatsapp IS NOT NULL) OR (email = ? AND email != '' AND email IS NOT NULL) LIMIT 1
+      `, {
+        replacements: [phone || '', email || ''],
+        type: db.sequelize.QueryTypes.SELECT
+      });
+
+      if (existing.length === 0) {
+        const meecStatusMap = {
+          'new': 'lead_qualificado',
+          'contacted': 'lead_prospectado',
+          'quoted': 'orcamento_ativo',
+          'won': 'orcamento_fechado',
+          'lost': 'lost'
+        };
+        const meecStatus = meecStatusMap[status] || 'lead_qualificado';
+
+        await db.sequelize.query(`
+          INSERT INTO leads (name, whatsapp, email, message, origem, status, valor, created_at, updated_at, tenant_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), 1)
+        `, {
+          replacements: [
+            name || '',
+            phone || '',
+            email || '',
+            notes || '',
+            source || 'crm',
+            meecStatus,
+            estimatedValue || 0
+          ],
+          type: db.sequelize.QueryTypes.INSERT
+        });
+
+        console.log('[Sync] Lead "' + name + '" synced to MEEC leads');
+      }
+    } catch (syncError) {
+      console.error('[Sync] Failed to sync lead to MEEC:', syncError.message);
+    }
+
     res.status(201).json(lead);
   } catch (err) {
     console.error(err.message);

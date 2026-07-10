@@ -12,7 +12,7 @@ router.get('/stock/low-stock', authMiddleware, async (req, res) => {
     const parts = await db.Part.findAll({
       where: {
         stockQuantity: {
-          [Op.lt]: db.col('minStockLevel')
+          [Op.lt]: db.Sequelize.col('minStockLevel')
         }
       }
     });

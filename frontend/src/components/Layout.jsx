@@ -21,6 +21,7 @@ import {
   UserCog,
   Moon,
   Sun,
+  Store,
 } from 'lucide-react';
 
 export default function Layout() {
@@ -119,6 +120,7 @@ export default function Layout() {
         { to: '/service-types', label: 'Tipos de Serviço', icon: Wrench },
         { to: '/parts', label: 'Peças', icon: Package },
         { to: '/parts-store', label: 'Loja de Peças', icon: ShoppingCart, badge: pendingRequestsCount },
+        { to: '/meec-stock', label: 'Estoque MEEC', icon: Store },
         { to: '/stock-movements', label: 'Histórico Estoque', icon: Activity },
         { to: '/users', label: 'Usuários', icon: UserCog },
       ];

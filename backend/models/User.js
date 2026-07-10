@@ -39,6 +39,8 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: true
   }
+}, {
+  tableName: 'crm_users'
 });
 
 module.exports = User;
