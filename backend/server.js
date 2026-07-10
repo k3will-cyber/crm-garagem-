@@ -16,6 +16,7 @@ const { authenticateToken } = require('./middleware/auth');
 const { initSocket } = require('./socket');
 const { initNotificationService } = require('./services/notificationService');
 const publicRoutes = require('./routes/public');
+const setupRoutes = require('./routes/setup');
 const bcrypt = require('bcryptjs');
 const db = require('./models');
 
@@ -46,6 +47,7 @@ app.get('/api/health', (req, res) => {
 
 // Public routes (no auth required)
 app.use('/api/public', publicRoutes);
+app.use('/api/setup', setupRoutes);
 
 // Routes
 app.use('/api/auth', authRoutes);
