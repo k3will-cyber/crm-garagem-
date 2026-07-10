@@ -6,14 +6,8 @@ let sequelize;
 
 if (process.env.DATABASE_URL) {
   // Production: PostgreSQL via DATABASE_URL (Railway, Render, Supabase, etc.)
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
+  const pgConfig = {
     dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-      },
-    },
     logging: false,
     pool: {
       max: 5,
@@ -21,7 +15,17 @@ if (process.env.DATABASE_URL) {
       acquire: 30000,
       idle: 10000,
     },
-  });
+  };
+
+  // Try without SSL first (for Railway internal Docker PG)
+  // If PGSSLMODE=require is set, use SSL
+  if (process.env.PGSSLMODE === 'require') {
+    pgConfig.dialectOptions = {
+      ssl: { require: true, rejectUnauthorized: false }
+    };
+  }
+
+  sequelize = new Sequelize(process.env.DATABASE_URL, pgConfig);
 } else {
   // Development: SQLite
   const MEEC_DB_PATH = process.env.MEEC_DB_PATH || path.resolve(__dirname, '../../../garagem-do-mec-site/data/garagem.db');
