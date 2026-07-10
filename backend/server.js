@@ -21,6 +21,12 @@ const db = require('./models');
 
 require('dotenv').config();
 
+// Fallback ACCESS_TOKEN_SECRET if not set in environment
+if (!process.env.ACCESS_TOKEN_SECRET) {
+  process.env.ACCESS_TOKEN_SECRET = 'crm-garagem-fallback-secret-' + require('crypto').randomBytes(16).toString('hex');
+  console.log('[Server] ACCESS_TOKEN_SECRET not set, using generated fallback');
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -67,14 +73,27 @@ const server = app.listen(PORT, () => {
   // Initialize notification service
   initNotificationService();
 
-  // Sync database in background (non-blocking)
-  sequelize.sync()
-    .then(async () => {
-      console.log('Database synced');
-      await seedAdminUser();
-    })
-    .catch(err => console.log('Database sync error: ' + err.message));
+  // Sync database and seed admin user
+  syncAndSeed().catch(err => console.log('[DB] Sync error:', err.message));
 });
+
+/**
+ * Sync database and seed admin user with retry logic
+ */
+async function syncAndSeed() {
+  try {
+    await sequelize.sync();
+    console.log('Database synced');
+    await seedAdminUser();
+    console.log('[Startup] CRM ready — admin exists, login enabled');
+  } catch (err) {
+    console.log('Database sync error: ' + err.message);
+    // Retry sync after 5 seconds (PostgreSQL might not be ready yet)
+    setTimeout(() => {
+      syncAndSeed().catch(e => console.log('[DB] Retry sync error:', e.message));
+    }, 5000);
+  }
+}
 
 /**
  * Auto-seed admin user if no users exist in the database
@@ -98,5 +117,7 @@ async function seedAdminUser() {
     }
   } catch (err) {
     console.error('Auto-seed error:', err.message);
+    // Retry seed after 3 seconds (might be a race condition)
+    setTimeout(() => seedAdminUser().catch(e => console.log('[Seed] Retry error:', e.message)), 3000);
   }
 }
