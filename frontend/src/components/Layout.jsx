@@ -24,6 +24,14 @@ import {
   Store,
 } from 'lucide-react';
 
+const ExternalLinkIcon = ({ size }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <polyline points="15 3 21 3 21 9" />
+    <line x1="10" y1="14" x2="21" y2="3" />
+  </svg>
+);
+
 export default function Layout() {
   const { user, logout, hasRole, roleLabel } = useAuth();
   const { subscribe } = useSocket();
@@ -125,6 +133,10 @@ export default function Layout() {
         { to: '/users', label: 'Usuários', icon: UserCog },
       ];
 
+  const externalLinks = [
+    { href: '/meec-store', label: '🛒 Loja Pública MEEC', external: true },
+  ];
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -164,6 +176,19 @@ export default function Layout() {
                 <span className="nav-badge">{item.badge}</span>
               )}
             </NavLink>
+          ))}
+          {isManager && externalLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="nav-item"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <ExternalLinkIcon size={20} />
+              <span>{link.label}</span>
+            </a>
           ))}
         </nav>
 

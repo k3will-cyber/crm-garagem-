@@ -20,6 +20,7 @@ import Users from './pages/Users';
 import PartsStore from './pages/PartsStore';
 import StockMovements from './pages/StockMovements';
 import MeecStock from './pages/MeecStock';
+import MeecStore from './pages/MeecStore';
 import MechanicsDashboard from './pages/MechanicsDashboard';
 import ClientOrderView from './pages/ClientOrderView';
 import ForgotPassword from './pages/ForgotPassword';
@@ -47,6 +48,7 @@ export default function App() {
     <Routes>
       {/* Public routes */}
       <Route path="/public/os/:shareToken" element={<ClientOrderView />} />
+      <Route path="/meec-store" element={<MeecStore />} />
       
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />

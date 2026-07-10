@@ -310,4 +310,87 @@ router.get('/client/orders/:id', authenticateClient, async (req, res) => {
   }
 });
 
+// ============================================
+// Public MEEC Store - Products Listing
+// ============================================
+
+// Get all active MEEC store products (public, no auth)
+router.get('/meec-stock', async (req, res) => {
+  try {
+    const { MeecProduct } = require('../models');
+    const products = await MeecProduct.findAll({
+      where: { ativo: 1 },
+      attributes: ['id', 'nome', 'descricao', 'preco', 'categoria', 'quantidade'],
+      order: [
+        ['categoria', 'ASC'],
+        ['nome', 'ASC']
+      ]
+    });
+    res.json(products);
+  } catch (err) {
+    console.error('[Public MEEC] Error:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// Get MEEC categories (public)
+router.get('/meec-stock/meta/categorias', async (req, res) => {
+  try {
+    const { MeecProduct } = require('../models');
+    const categories = await MeecProduct.findAll({
+      where: { ativo: 1 },
+      attributes: ['categoria'],
+      group: ['categoria'],
+      order: [['categoria', 'ASC']],
+      raw: true
+    });
+    res.json(categories.map(c => c.categoria));
+  } catch (err) {
+    console.error('[Public MEEC] Error:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// Get MEEC summary (public)
+router.get('/meec-stock/meta/summary', async (req, res) => {
+  try {
+    const { MeecProduct } = require('../models');
+    const total = await MeecProduct.count({ where: { ativo: 1 } });
+
+    const valorResult = await MeecProduct.findAll({
+      where: { ativo: 1 },
+      attributes: [
+        [MeecProduct.sequelize.fn('SUM', MeecProduct.sequelize.literal('preco * quantidade')), 'valor']
+      ],
+      raw: true
+    });
+    const valorEstoque = parseFloat(valorResult[0]?.valor) || 0;
+
+    const categorias = await MeecProduct.findAll({
+      where: { ativo: 1 },
+      attributes: [
+        'categoria',
+        [MeecProduct.sequelize.fn('COUNT', MeecProduct.sequelize.col('id')), 'count'],
+        [MeecProduct.sequelize.fn('SUM', MeecProduct.sequelize.col('quantidade')), 'totalQty']
+      ],
+      group: ['categoria'],
+      order: [[MeecProduct.sequelize.literal('count'), 'DESC']],
+      raw: true
+    });
+
+    res.json({
+      total,
+      valorEstoque,
+      categorias: categorias.map(c => ({
+        categoria: c.categoria,
+        count: parseInt(c.count),
+        totalQty: parseInt(c.totalQty) || 0
+      }))
+    });
+  } catch (err) {
+    console.error('[Public MEEC] Error:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
 module.exports = router;
