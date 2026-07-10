@@ -29,10 +29,12 @@ app.use(express.json());
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-// Database connection
-sequelize.authenticate()
-  .then(() => console.log('Database connected...'))
-  .catch(err => console.log('Error: ' + err));
+// ─── Health Check ───────────────────────────────────────────────
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
+// Database connection (sync below handles authentication automatically)
 
 // Public routes (no auth required)
 app.use('/api/public', publicRoutes);
@@ -53,13 +55,18 @@ app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-// Sync database and start server
-sequelize.sync()
-  .then(() => {
-    const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-    // Initialize Socket.IO with the HTTP server
-    initSocket(server);
-    // Initialize notification service
-    initNotificationService();
-  })
-  .catch(err => console.log('Error: ' + err));
+// Start HTTP server first (healthcheck needs port open)
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+
+  // Initialize Socket.IO with the HTTP server
+  initSocket(server);
+
+  // Initialize notification service
+  initNotificationService();
+
+  // Sync database in background (non-blocking)
+  sequelize.sync()
+    .then(() => console.log('Database synced'))
+    .catch(err => console.log('Database sync error: ' + err.message));
+});
