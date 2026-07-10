@@ -3,15 +3,16 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const sequelize = require('../config/database');
 const db = require('../models');
+const partsData = require('../seed-data/parts');
 
 /**
  * POST /api/setup
- * Forces database sync and creates admin user if it doesn't exist.
+ * Forces database sync, creates admin user, and seeds inventory.
  * This is called manually after deploy to initialize the database.
  */
 router.post('/', async (req, res) => {
   const startTime = Date.now();
-  const result = { synced: false, adminCreated: false, error: null, time: 0 };
+  const result = { synced: false, adminCreated: false, partsImported: 0, error: null, time: 0 };
 
   try {
     console.log('[Setup] Starting database sync...');
@@ -26,7 +27,6 @@ router.post('/', async (req, res) => {
     console.log(`[Setup] Existing users: ${userCount}`);
 
     if (userCount === 0) {
-      // Step 3: Create admin user
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash('admin123', salt);
 
@@ -43,6 +43,26 @@ router.post('/', async (req, res) => {
       console.log('[Setup] Admin user created: admin@crmgaragem.com');
     } else {
       console.log('[Setup] Admin user already exists, skipping creation');
+    }
+
+    // Step 3: Seed inventory parts
+    const existingParts = await db.Part.count();
+    if (existingParts === 0) {
+      console.log(`[Setup] Seeding ${partsData.length} inventory parts...`);
+
+      const batchSize = 10;
+      let imported = 0;
+
+      for (let i = 0; i < partsData.length; i += batchSize) {
+        const batch = partsData.slice(i, i + batchSize);
+        await db.Part.bulkCreate(batch, { ignoreDuplicates: true });
+        imported += batch.length;
+      }
+
+      result.partsImported = imported;
+      console.log(`[Setup] ${imported} parts imported successfully`);
+    } else {
+      console.log(`[Setup] ${existingParts} parts already exist, skipping import`);
     }
 
     result.time = Date.now() - startTime;
