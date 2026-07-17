@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getClient, createClient, updateClient } from '../api/clients';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Car, Plus, ChevronRight } from 'lucide-react';
 
 export default function ClientForm() {
   const { id } = useParams();
@@ -39,6 +39,7 @@ export default function ClientForm() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEditing);
   const [error, setError] = useState('');
+  const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
     if (isEditing) {
@@ -56,6 +57,7 @@ export default function ClientForm() {
             whatsapp: c.whatsapp || '',
             birthDate: c.birthDate || '',
           });
+          setVehicles(c.vehicles || []);
         } catch (err) {
           setError('Erro ao carregar cliente');
         } finally {
@@ -224,6 +226,98 @@ export default function ClientForm() {
           </div>
         </form>
       </div>
+
+      {/* Vehicles Section - only when editing */}
+      {isEditing && (
+        <div className="form-card" style={{ marginTop: 20 }}>
+          <div className="form-section-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Car size={20} style={{ color: 'var(--primary)' }} />
+              <h3>Veículos do Cliente</h3>
+              <span className="badge badge-blue" style={{ fontSize: '0.72rem' }}>
+                {vehicles.length} veículo(s)
+              </span>
+            </div>
+            <Link
+              to="/vehicles"
+              className="btn btn-sm btn-secondary"
+              style={{ textDecoration: 'none' }}
+            >
+              <Plus size={14} />
+              Gerenciar Veículos
+            </Link>
+          </div>
+
+          {vehicles.length === 0 ? (
+            <div style={{
+              textAlign: 'center', padding: '32px 16px',
+              color: 'var(--gray-400)', fontSize: '0.875rem'
+            }}>
+              <Car size={32} style={{ opacity: 0.3, marginBottom: 8 }} />
+              <p>Este cliente não possui veículos cadastrados.</p>
+              <Link
+                to="/vehicles"
+                className="btn btn-sm btn-primary"
+                style={{ marginTop: 12, display: 'inline-flex', textDecoration: 'none' }}
+              >
+                <Plus size={14} /> Cadastrar Veículo
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {vehicles.map(v => (
+                <div
+                  key={v.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '12px 16px', gap: 12,
+                    background: 'var(--gray-50)', borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--gray-200)',
+                    flexWrap: 'wrap'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                    <div style={{
+                      width: 36, height: 36,
+                      background: 'var(--primary-light)',
+                      borderRadius: 'var(--radius-sm)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <Car size={18} style={{ color: 'var(--primary)' }} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--gray-800)' }}>
+                        {v.brand} {v.model}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--gray-500)', display: 'flex', gap: 8, marginTop: 1 }}>
+                        {v.plate && <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{v.plate}</span>}
+                        {v.year && <span>{v.year}</span>}
+                        {v.color && <span>{v.color}</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    {v.currentKm > 0 && (
+                      <span style={{ fontSize: '0.82rem', color: 'var(--gray-500)', whiteSpace: 'nowrap' }}>
+                        {v.currentKm.toLocaleString()} km
+                      </span>
+                    )}
+                    <Link
+                      to="/vehicles"
+                      className="btn-icon"
+                      title="Ver veículos"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <ChevronRight size={16} style={{ color: 'var(--gray-400)' }} />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
