@@ -99,11 +99,11 @@ export default function MeecStore() {
       `Olá! Tenho interesse no produto: ${product.nome} - ${formatPrice(product.preco)}\n\n` +
       `(via Loja MEEC)`
     );
-    window.open(`https://wa.me/5511999999999?text=${msg}`, '_blank');
+    window.open(`https://wa.me/5561981257477?text=${msg}`, '_blank');
   };
 
   const handleContact = () => {
-    window.open('https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre os produtos da Garagem do MEEC.', '_blank');
+    window.open('https://wa.me/5561981257477?text=Olá! Gostaria de saber mais sobre os produtos da Garagem do MEEC.', '_blank');
   };
 
   if (loading) {

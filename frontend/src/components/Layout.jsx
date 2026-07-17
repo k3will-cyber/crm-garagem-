@@ -18,6 +18,7 @@ import {
   User,
   ShoppingCart,
   Activity,
+  Calendar,
   UserCog,
   Moon,
   Sun,
@@ -117,6 +118,7 @@ export default function Layout() {
     ? [
         { to: '/mechanics', label: 'Painel', icon: LayoutDashboard },
         { to: '/service-orders', label: 'Ordens de Serviço', icon: FileText },
+        { to: '/service-orders/new', label: 'Novo Agendamento', icon: Calendar },
         { to: '/parts-store', label: 'Loja de Peças', icon: ShoppingCart },
         { to: '/service-types', label: 'Tipos de Serviço', icon: Wrench },
       ]

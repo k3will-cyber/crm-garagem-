@@ -30,3 +30,9 @@ Thumbs.db
 # Logs
 *.log
 /tmp/
+
+# Worktrees
+.worktrees/
+
+# Planning docs
+PLAN-FASE-1-MEEC.md
