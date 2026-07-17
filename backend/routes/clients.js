@@ -3,10 +3,18 @@ const router = express.Router();
 const { authenticateToken: authMiddleware, authorize } = require('../middleware/auth');
 const db = require('../models');
 
-// Get all clients/leads
+// Get all clients/leads (with vehicle count + owners from vehicles)
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const clients = await db.Client.findAll();
+    const clients = await db.Client.findAll({
+      include: [{
+        model: db.Vehicle,
+        as: 'vehicles',
+        attributes: ['id', 'plate', 'brand', 'model', 'year', 'color'],
+        required: false
+      }],
+      order: [['name', 'ASC']]
+    });
     res.json(clients);
   } catch (err) {
     console.error(err.message);
@@ -17,7 +25,14 @@ router.get('/', authMiddleware, async (req, res) => {
 // Get client by ID
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const client = await db.Client.findByPk(req.params.id);
+    const client = await db.Client.findByPk(req.params.id, {
+      include: [{
+        model: db.Vehicle,
+        as: 'vehicles',
+        attributes: ['id', 'plate', 'brand', 'model', 'year', 'color', 'currentKm'],
+        required: false
+      }]
+    });
     if (!client) {
       return res.status(404).json({ msg: 'Client not found' });
     }

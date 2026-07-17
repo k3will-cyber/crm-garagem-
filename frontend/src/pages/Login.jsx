@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { login } from '../api/auth';
-import { Wrench, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Wrench, Eye, EyeOff, AlertCircle, Car, ChevronRight } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -21,10 +21,8 @@ export default function Login() {
     try {
       const res = await login(email, password);
       const { token } = res.data;
-      // Decode token to get user info
       const payload = JSON.parse(atob(token.split('.')[1]));
       loginUser(token, payload.user);
-      // Redirect based on role
       const defaultRoute = payload.user?.role === 'technician' ? '/mechanics' : '/dashboard';
       navigate(defaultRoute);
     } catch (err) {
@@ -36,70 +34,109 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="login-icon">
-            <Wrench size={32} />
+      {/* Background decoration */}
+      <div className="login-bg-decor">
+        <div className="login-bg-circle login-bg-circle-1" />
+        <div className="login-bg-circle login-bg-circle-2" />
+        <div className="login-bg-circle login-bg-circle-3" />
+      </div>
+
+      <div className="login-container">
+        {/* Brand header - visible on mobile above card */}
+        <div className="login-brand-mobile">
+          <div className="login-brand-icon">
+            <Wrench size={20} />
           </div>
-          <h1>CRM Garagem</h1>
-          <p>Faça login para continuar</p>
+          <span>CRM Garagem</span>
         </div>
 
-        {error && (
-          <div className="alert alert-error">
-            <AlertCircle size={18} />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              required
-              autoFocus
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Senha</label>
-            <div className="password-input">
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Sua senha"
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+        <div className="login-card">
+          <div className="login-header">
+            <div className="login-icon">
+              <Car size={28} />
             </div>
+            <h1>Bem-vindo</h1>
+            <p>Faça login para acessar o sistema</p>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Entrando...' : 'Entrar'}
-          </button>
+          {error && (
+            <div className="login-alert">
+              <AlertCircle size={16} />
+              <span>{error}</span>
+            </div>
+          )}
 
-          <div style={{ textAlign: 'center', marginTop: 8 }}>
-            <Link
-              to="/forgot-password"
-              className="forgot-password-link"
+          <form onSubmit={handleSubmit} className="login-form" noValidate>
+            <div className="login-field">
+              <label htmlFor="email">Email</label>
+              <div className="login-input-wrapper">
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="seu@email.com"
+                  required
+                  autoFocus
+                  autoComplete="email"
+                  inputMode="email"
+                />
+              </div>
+            </div>
+
+            <div className="login-field">
+              <label htmlFor="password">Senha</label>
+              <div className="login-input-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Sua senha"
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Esconder senha' : 'Mostrar senha'}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="login-submit"
+              disabled={loading}
             >
-              Esqueci minha senha
-            </Link>
-          </div>
-        </form>
+              {loading ? (
+                <span className="login-submit-loading">
+                  <span className="login-spinner" />
+                  Entrando...
+                </span>
+              ) : (
+                <span className="login-submit-text">
+                  Entrar
+                  <ChevronRight size={18} />
+                </span>
+              )}
+            </button>
+
+            <div className="login-footer-links">
+              <Link to="/forgot-password" className="login-link">
+                Esqueci minha senha
+              </Link>
+            </div>
+          </form>
+        </div>
+
+        <div className="login-footer-text">
+          <span>Garagem do MEEC © {new Date().getFullYear()}</span>
+        </div>
       </div>
     </div>
   );

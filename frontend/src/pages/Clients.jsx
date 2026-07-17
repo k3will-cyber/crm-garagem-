@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getClients, deleteClient } from '../api/clients';
-import { Users, Plus, Search, Edit2, Trash2, Phone, Mail, AlertCircle } from 'lucide-react';
+import { Users, Plus, Search, Edit2, Trash2, Phone, Mail, AlertCircle, Car } from 'lucide-react';
 
 export default function Clients() {
   const [clients, setClients] = useState([]);
@@ -89,6 +89,7 @@ export default function Clients() {
                 <th>Telefone</th>
                 <th>Email</th>
                 <th>WhatsApp</th>
+                <th>Veículos</th>
                 <th>Data</th>
                 <th>Ações</th>
               </tr>
@@ -133,6 +134,21 @@ export default function Clients() {
                       <span>{client.whatsapp}</span>
                     ) : (
                       <span className="text-muted">—</span>
+                    )}
+                  </td>
+                  <td>
+                    {client.vehicles && client.vehicles.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>
+                          <Car size={12} style={{ marginRight: 3 }} />
+                          {client.vehicles.length} veículo(s)
+                        </span>
+                        <span style={{ fontSize: 11, color: 'var(--gray-400)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {client.vehicles.map(v => v.plate || `${v.brand} ${v.model}`).join(', ')}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-muted" style={{ fontSize: 13 }}>—</span>
                     )}
                   </td>
                   <td className="text-muted" style={{ whiteSpace: 'nowrap', fontSize: 13 }}>
