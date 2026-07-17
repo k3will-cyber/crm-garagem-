@@ -136,7 +136,233 @@ export default function Vehicles() {
     }
   };
 
-  if (loading) {
+/* ─── Searchable Client Select ──────── */
+function ClientSearchSelect({ clients, value, onChange }) {
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  const selected = clients.find(c => c.id === Number(value));
+
+  const filtered = query
+    ? clients.filter(c => {
+        const q = query.toLowerCase();
+        return c.name?.toLowerCase().includes(q)
+          || c.phone?.toLowerCase().includes(q)
+          || c.cpfCnpj?.toLowerCase().includes(q);
+      })
+    : clients;
+
+  // Close on click outside
+  useEffect(() => {
+    function handleClick(e) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  // Close on Escape
+  useEffect(() => {
+    function handleKey(e) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
+  const handleSelect = (clientId) => {
+    onChange(clientId);
+    setQuery('');
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    onChange('');
+    setQuery('');
+  };
+
+  const displayText = selected
+    ? `${selected.name}${selected.phone ? ` — ${selected.phone}` : ''}${selected.cpfCnpj ? ` • ${selected.cpfCnpj}` : ''}`
+    : 'Buscar cliente...';
+
+  return (
+    <div className="form-group" ref={wrapperRef} style={{ position: 'relative' }}>
+      <label>Cliente *</label>
+
+      {/* Input trigger */}
+      <div
+        onClick={() => { setOpen(true); setQuery(''); }}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '10px 14px',
+          border: `1.5px solid ${open ? 'var(--primary)' : 'var(--gray-300)'}`,
+          borderRadius: 'var(--radius-md)',
+          cursor: 'pointer',
+          background: 'white',
+          transition: 'border-color 150ms ease',
+          boxShadow: open ? '0 0 0 3px rgba(37,99,235,0.1)' : 'none'
+        }}
+      >
+        <Users size={16} style={{ color: 'var(--gray-400)', flexShrink: 0 }} />
+        <span style={{
+          flex: 1, fontSize: '0.9rem',
+          color: selected ? 'var(--gray-800)' : 'var(--gray-400)',
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+        }}>
+          {selected ? displayText : 'Buscar cliente...'}
+        </span>
+        {selected && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); handleClear(); }}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--gray-400)', padding: 2, display: 'flex',
+              borderRadius: 4
+            }}
+          >
+            <X size={14} />
+          </button>
+        )}
+      </div>
+
+      {/* Dropdown */}
+      {open && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 300,
+          marginTop: 4,
+          background: 'white',
+          border: '1px solid var(--gray-200)',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.05)',
+          maxHeight: 280, overflow: 'hidden',
+          display: 'flex', flexDirection: 'column'
+        }}>
+          {/* Search input inside dropdown */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '10px 12px',
+            borderBottom: '1px solid var(--gray-100)'
+          }}>
+            <Search size={16} style={{ color: 'var(--gray-400)', flexShrink: 0 }} />
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Filtrar por nome, telefone ou CPF..."
+              autoFocus
+              style={{
+                flex: 1, border: 'none', outline: 'none',
+                fontSize: '0.85rem', color: 'var(--gray-800)',
+                background: 'transparent', fontFamily: 'inherit'
+              }}
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--gray-400)', padding: 2, display: 'flex'
+                }}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Results list */}
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            {filtered.length === 0 ? (
+              <div style={{
+                padding: '20px 16px', textAlign: 'center',
+                color: 'var(--gray-400)', fontSize: '0.85rem'
+              }}>
+                Nenhum cliente encontrado
+              </div>
+            ) : (
+              filtered.map(c => {
+                const isSelected = c.id === Number(value);
+                return (
+                  <div
+                    key={c.id}
+                    onClick={() => handleSelect(c.id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '10px 14px', cursor: 'pointer',
+                      background: isSelected ? 'var(--primary-light)' : 'transparent',
+                      borderBottom: '1px solid var(--gray-50)',
+                      transition: 'background 100ms ease'
+                    }}
+                    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--gray-50)'; }}
+                    onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <div style={{
+                      width: 32, height: 32, borderRadius: '50%',
+                      background: isSelected ? 'var(--primary)' : 'var(--gray-100)',
+                      color: isSelected ? 'white' : 'var(--gray-500)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '0.78rem', fontWeight: 700, flexShrink: 0
+                    }}>
+                      {c.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{
+                        fontSize: '0.9rem', fontWeight: 500,
+                        color: 'var(--gray-800)',
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                      }}>
+                        {c.name}
+                      </div>
+                      <div style={{
+                        fontSize: '0.75rem', color: 'var(--gray-400)',
+                        display: 'flex', gap: 8
+                      }}>
+                        {c.phone && <span>{c.phone}</span>}
+                        {c.cpfCnpj && <span>{c.cpfCnpj}</span>}
+                      </div>
+                    </div>
+                    {isSelected && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Footer with count */}
+          <div style={{
+            padding: '8px 14px',
+            borderTop: '1px solid var(--gray-100)',
+            fontSize: '0.72rem', color: 'var(--gray-400)',
+            display: 'flex', justifyContent: 'space-between'
+          }}>
+            <span>{filtered.length} cliente(s)</span>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--primary)', fontSize: '0.72rem',
+                fontFamily: 'inherit', fontWeight: 600
+              }}
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+if (loading) {
     return (
       <div className="page-loading">
         <div className="loading-spinner" />
@@ -268,17 +494,13 @@ export default function Vehicles() {
                 </div>
               )}
 
-              {/* Client selector */}
+              {/* Client selector with search */}
               {clientMode === 'select' ? (
-                <div className="form-group">
-                  <label>Cliente *</label>
-                  <select value={form.clientId} onChange={e => setForm({ ...form, clientId: e.target.value })}>
-                    <option value="">Selecione um cliente</option>
-                    {clients.map(c => (
-                      <option key={c.id} value={c.id}>{c.name} {c.phone ? `- ${c.phone}` : ''}</option>
-                    ))}
-                  </select>
-                </div>
+                <ClientSearchSelect
+                  clients={clients}
+                  value={form.clientId}
+                  onChange={(clientId) => setForm({ ...form, clientId })}
+                />
               ) : (
                 <div className="form-group">
                   <label>Nome do Proprietário *</label>
