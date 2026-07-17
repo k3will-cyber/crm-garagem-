@@ -85,8 +85,10 @@ export default function Clients() {
             <thead>
               <tr>
                 <th>Nome</th>
+                <th>CPF/CNPJ</th>
                 <th>Telefone</th>
                 <th>Email</th>
+                <th>WhatsApp</th>
                 <th>Data</th>
                 <th>Ações</th>
               </tr>
@@ -98,6 +100,13 @@ export default function Clients() {
                     <span className="table-link" onClick={() => navigate(`/clients/${client.id}/edit`)}>
                       {client.name}
                     </span>
+                  </td>
+                  <td style={{ fontSize: 13 }}>
+                    {client.cpfCnpj ? (
+                      <span>{client.cpfCnpj}</span>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
                   </td>
                   <td>
                     {client.phone ? (
@@ -115,6 +124,13 @@ export default function Clients() {
                         <Mail size={14} />
                         {client.email}
                       </span>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
+                  </td>
+                  <td style={{ fontSize: 13 }}>
+                    {client.whatsapp ? (
+                      <span>{client.whatsapp}</span>
                     ) : (
                       <span className="text-muted">—</span>
                     )}

@@ -16,6 +16,10 @@ const ServiceOrder = sequelize.define('ServiceOrder', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  vehicleId: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   serviceTypeId: {
     type: DataTypes.INTEGER,
     allowNull: false
@@ -62,6 +66,10 @@ ServiceOrder.associate = (models) => {
   ServiceOrder.belongsTo(models.Client, {
     foreignKey: 'clientId',
     as: 'client'
+  });
+  ServiceOrder.belongsTo(models.Vehicle, {
+    foreignKey: 'vehicleId',
+    as: 'vehicle'
   });
   ServiceOrder.belongsTo(models.ServiceType, {
     foreignKey: 'serviceTypeId',

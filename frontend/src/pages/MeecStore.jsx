@@ -123,13 +123,13 @@ export default function MeecStore() {
       <div className="store-topbar">
         <div className="store-topbar-content">
           <span className="store-topbar-item">
-            <MapPin size={14} /> Rua Exemplo, 123 - Centro
+            <MapPin size={14} /> R. 102, Jardim Ceu Azul — Valparaíso de Goiás · GO
           </span>
           <span className="store-topbar-item">
-            <Clock size={14} /> Seg-Sex: 8h-18h | Sáb: 8h-12h
+            <Clock size={14} /> Seg–Sex 8h–18h · Sáb 8h–12h
           </span>
           <span className="store-topbar-item">
-            <Phone size={14} /> (11) 99999-9999
+            <Phone size={14} /> (61) 98125-7477
           </span>
         </div>
       </div>
@@ -455,7 +455,7 @@ export default function MeecStore() {
             <div className="store-footer-col">
               <h4>Horários</h4>
               <ul className="store-footer-list">
-                <li><Clock size={14} /> Seg-Sex: 8h às 18h</li>
+                <li><Clock size={14} /> Seg–Sex: 8h às 18h</li>
                 <li><Clock size={14} /> Sáb: 8h às 12h</li>
                 <li><X size={14} /> Dom: Fechado</li>
               </ul>
@@ -463,9 +463,9 @@ export default function MeecStore() {
             <div className="store-footer-col">
               <h4>Contato</h4>
               <ul className="store-footer-list">
-                <li><Phone size={14} /> (11) 99999-9999</li>
-                <li><MapPin size={14} /> Rua Exemplo, 123</li>
-                <li>Centro - São Paulo/SP</li>
+                <li><Phone size={14} /> (61) 98125-7477</li>
+                <li><MapPin size={14} /> R. 102, Jardim Ceu Azul</li>
+                <li>Valparaíso de Goiás · GO, 72871-102</li>
               </ul>
             </div>
             <div className="store-footer-col">

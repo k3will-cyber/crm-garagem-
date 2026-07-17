@@ -14,7 +14,28 @@ export default function ClientForm() {
     email: '',
     address: '',
     notes: '',
+    cpfCnpj: '',
+    whatsapp: '',
+    birthDate: '',
   });
+
+  // CPF/CNPJ mask
+  const formatCpfCnpj = (value) => {
+    const digits = value.replace(/\D/g, '').slice(0, 14);
+    if (digits.length <= 11) {
+      return digits.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*$/, '$1.$2.$3-$4');
+    }
+    return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*$/, '$1.$2.$3/$4-$5');
+  };
+
+  // Phone mask
+  const formatPhone = (value) => {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length <= 10) {
+      return digits.replace(/^(\d{2})(\d{4})(\d{4}).*$/, '($1) $2-$3');
+    }
+    return digits.replace(/^(\d{2})(\d{5})(\d{4}).*$/, '($1) $2-$3');
+  };
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEditing);
   const [error, setError] = useState('');
@@ -31,6 +52,9 @@ export default function ClientForm() {
             email: c.email || '',
             address: c.address || '',
             notes: c.notes || '',
+            cpfCnpj: c.cpfCnpj || '',
+            whatsapp: c.whatsapp || '',
+            birthDate: c.birthDate || '',
           });
         } catch (err) {
           setError('Erro ao carregar cliente');
@@ -43,7 +67,11 @@ export default function ClientForm() {
   }, [id, isEditing]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let masked = value;
+    if (name === 'cpfCnpj') masked = formatCpfCnpj(value);
+    if (name === 'phone' || name === 'whatsapp') masked = formatPhone(value);
+    setForm({ ...form, [name]: masked });
   };
 
   const handleSubmit = async (e) => {
@@ -105,11 +133,34 @@ export default function ClientForm() {
             </div>
 
             <div className="form-group">
+              <label htmlFor="cpfCnpj">CPF/CNPJ</label>
+              <input
+                id="cpfCnpj"
+                name="cpfCnpj"
+                value={form.cpfCnpj}
+                onChange={handleChange}
+                placeholder="000.000.000-00"
+                maxLength={18}
+              />
+            </div>
+
+            <div className="form-group">
               <label htmlFor="phone">Telefone</label>
               <input
                 id="phone"
                 name="phone"
                 value={form.phone}
+                onChange={handleChange}
+                placeholder="(11) 99999-9999"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="whatsapp">WhatsApp</label>
+              <input
+                id="whatsapp"
+                name="whatsapp"
+                value={form.whatsapp}
                 onChange={handleChange}
                 placeholder="(11) 99999-9999"
               />
@@ -128,6 +179,17 @@ export default function ClientForm() {
             </div>
 
             <div className="form-group">
+              <label htmlFor="birthDate">Data de Nascimento</label>
+              <input
+                id="birthDate"
+                name="birthDate"
+                type="date"
+                value={form.birthDate}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
               <label htmlFor="address">Endereço</label>
               <input
                 id="address"

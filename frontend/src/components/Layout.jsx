@@ -23,6 +23,7 @@ import {
   Moon,
   Sun,
   Store,
+  Car,
 } from 'lucide-react';
 
 const ExternalLinkIcon = ({ size }) => (
@@ -130,6 +131,7 @@ export default function Layout() {
         { to: '/service-types', label: 'Tipos de Serviço', icon: Wrench },
         { to: '/parts', label: 'Peças', icon: Package },
         { to: '/parts-store', label: 'Loja de Peças', icon: ShoppingCart, badge: pendingRequestsCount },
+        { to: '/vehicles', label: 'Veículos', icon: Car },
         { to: '/meec-stock', label: 'Estoque MEEC', icon: Store },
         { to: '/stock-movements', label: 'Histórico Estoque', icon: Activity },
         { to: '/users', label: 'Usuários', icon: UserCog },

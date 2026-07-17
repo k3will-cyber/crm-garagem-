@@ -26,6 +26,18 @@ const Client = sequelize.define('Client', {
   },
   notes: {
     type: DataTypes.TEXT
+  },
+  cpfCnpj: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  whatsapp: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  birthDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: true
   }
 }, {
   timestamps: true
@@ -35,6 +47,10 @@ Client.associate = (models) => {
   Client.hasMany(models.ServiceOrder, {
     foreignKey: 'clientId',
     as: 'serviceOrders'
+  });
+  Client.hasMany(models.Vehicle, {
+    foreignKey: 'clientId',
+    as: 'vehicles'
   });
 };
 

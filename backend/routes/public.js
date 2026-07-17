@@ -108,7 +108,7 @@ router.get('/services', async (req, res) => {
 // Public Lead Form
 // ============================================
 
-// Create a lead from the public site (no auth required)
+// Create a lead from the public site (no auth required) with dedup
 router.post('/leads', async (req, res) => {
   try {
     const { name, phone, email, message, serviceType } = req.body;
@@ -122,6 +122,23 @@ router.post('/leads', async (req, res) => {
       serviceType && `Interesse: ${serviceType}`,
       'Fonte: Site Público'
     ].filter(Boolean).join('\n');
+
+    // Try dedup: if phone matches existing client, update it
+    if (phone) {
+      try {
+        const { upsertClient } = require('../services/dedupeClient');
+        const { client: existingClient, merged } = await upsertClient({
+          name, phone, email, source: 'website', notes, status: 'new'
+        });
+        if (merged && existingClient) {
+          console.log(`[Public] Lead "${name}" merged into client #${existingClient.id}`);
+        }
+      } catch (dedupErr) {
+        if (dedupErr.code !== 'PHONE_REQUIRED') {
+          console.warn('[Public] Dedup error:', dedupErr.message);
+        }
+      }
+    }
 
     const lead = await db.Lead.create({
       name,

@@ -21,6 +21,7 @@ import PartsStore from './pages/PartsStore';
 import StockMovements from './pages/StockMovements';
 import MeecStock from './pages/MeecStock';
 import MeecStore from './pages/MeecStore';
+import Vehicles from './pages/Vehicles';
 import MechanicsDashboard from './pages/MechanicsDashboard';
 import ClientOrderView from './pages/ClientOrderView';
 import ForgotPassword from './pages/ForgotPassword';
@@ -68,6 +69,7 @@ export default function App() {
         <Route path="service-types/:id/edit" element={<ServiceTypeForm />} />
         <Route path="parts-store" element={<PartsStore />} />
         <Route path="meec-stock" element={<MeecStock />} />
+        <Route path="vehicles" element={<Vehicles />} />
         
         {/* Manager+ routes */}
         <Route path="clients" element={<ProtectedRoute requiredRole="manager"><Clients /></ProtectedRoute>} />

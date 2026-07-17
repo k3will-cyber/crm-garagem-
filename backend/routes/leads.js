@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken: authMiddleware } = require('../middleware/auth');
 const db = require('../models');
+const { upsertClient } = require('../services/dedupeClient');
 
 // Get all leads
 router.get('/', authMiddleware, async (req, res) => {
@@ -34,6 +35,25 @@ router.get('/:id', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { name, phone, email, source, status, estimatedValue, notes } = req.body;
+
+    // Try dedup: if phone matches existing client, update it instead
+    if (phone) {
+      try {
+        const { client: existingClient, merged } = await upsertClient({
+          name, phone, email, source, notes, status
+        });
+        if (merged && existingClient) {
+          console.log(`[Leads] Lead "${name}" merged into existing client #${existingClient.id}`);
+          // Still create the lead record for tracking
+        }
+      } catch (dedupErr) {
+        // If dedup fails (e.g. no phone), just create lead normally
+        if (dedupErr.code !== 'PHONE_REQUIRED') {
+          console.warn('[Leads] Dedup error:', dedupErr.message);
+        }
+      }
+    }
+
     const lead = await db.Lead.create({
       name,
       phone,
