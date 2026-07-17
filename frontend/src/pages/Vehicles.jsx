@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getVehicles, createVehicle, updateVehicle, deleteVehicle } from '../api/vehicles';
 import { getClients } from '../api/clients';
 import {
-  Car, Plus, Search, Edit2, Trash2, AlertCircle, Save, X
+  Car, Plus, Search, Edit2, Trash2, AlertCircle, Save, X, UserPlus, Users
 } from 'lucide-react';
 
 const FUEL_LABELS = {
@@ -20,11 +20,13 @@ export default function Vehicles() {
   const [deleteId, setDeleteId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [clientMode, setClientMode] = useState('select'); // 'select' | 'new'
   const [form, setForm] = useState({
-    clientId: '', plate: '', brand: '', model: '', year: '',
+    clientId: '', ownerName: '', plate: '', brand: '', model: '', year: '',
     color: '', fuel: 'flex', currentKm: '', chassis: '', notes: ''
   });
   const [saving, setSaving] = useState(false);
+  const ownerInputRef = useRef(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -55,6 +57,7 @@ export default function Vehicles() {
   const handleEdit = (vehicle) => {
     setForm({
       clientId: vehicle.clientId || '',
+      ownerName: vehicle.client?.name || '',
       plate: vehicle.plate || '',
       brand: vehicle.brand || '',
       model: vehicle.model || '',
@@ -65,26 +68,49 @@ export default function Vehicles() {
       chassis: vehicle.chassis || '',
       notes: vehicle.notes || ''
     });
+    setClientMode('select');
     setEditing(vehicle.id);
     setShowForm(true);
   };
 
   const handleNew = () => {
-    setForm({ clientId: '', plate: '', brand: '', model: '', year: '', color: '', fuel: 'flex', currentKm: '', chassis: '', notes: '' });
+    setForm({ clientId: '', ownerName: '', plate: '', brand: '', model: '', year: '', color: '', fuel: 'flex', currentKm: '', chassis: '', notes: '' });
     setEditing(null);
+    setClientMode('select');
     setShowForm(true);
   };
 
   const handleSave = async () => {
-    if (!form.clientId) return alert('Selecione um cliente');
     if (!form.brand || !form.model) return alert('Marca e modelo são obrigatórios');
+
+    // Validate client
+    if (clientMode === 'select' && !form.clientId) {
+      return alert('Selecione um cliente');
+    }
+    if (clientMode === 'new' && !form.ownerName?.trim()) {
+      return alert('Digite o nome do proprietário');
+    }
+
     setSaving(true);
     try {
       const payload = {
-        ...form,
+        plate: form.plate,
+        brand: form.brand,
+        model: form.model,
         year: form.year ? parseInt(form.year) : null,
-        currentKm: form.currentKm ? parseInt(form.currentKm) : null
+        color: form.color,
+        fuel: form.fuel,
+        currentKm: form.currentKm ? parseInt(form.currentKm) : null,
+        chassis: form.chassis,
+        notes: form.notes
       };
+
+      if (clientMode === 'select') {
+        payload.clientId = form.clientId;
+      } else {
+        payload.ownerName = form.ownerName.trim();
+      }
+
       if (editing) {
         await updateVehicle(editing, payload);
       } else {
@@ -200,15 +226,82 @@ export default function Vehicles() {
               <h3>{editing ? 'Editar Veículo' : 'Novo Veículo'}</h3>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div className="form-group">
-                <label>Cliente *</label>
-                <select value={form.clientId} onChange={e => setForm({ ...form, clientId: e.target.value })}>
-                  <option value="">Selecione um cliente</option>
-                  {clients.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} {c.phone ? `- ${c.phone}` : ''}</option>
-                  ))}
-                </select>
-              </div>
+              {/* Client mode toggle */}
+              {!editing && (
+                <div style={{
+                  display: 'flex', gap: 8, padding: 4,
+                  background: 'var(--gray-100)', borderRadius: 'var(--radius-md)'
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => setClientMode('select')}
+                    style={{
+                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      padding: '8px 12px', border: 'none', borderRadius: 'var(--radius-sm)',
+                      background: clientMode === 'select' ? 'white' : 'transparent',
+                      color: clientMode === 'select' ? 'var(--primary)' : 'var(--gray-600)',
+                      fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer',
+                      boxShadow: clientMode === 'select' ? 'var(--shadow-sm)' : 'none',
+                      transition: 'all 150ms ease', fontFamily: 'inherit'
+                    }}
+                  >
+                    <Users size={16} /> Cliente Existente
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setClientMode('new');
+                      setTimeout(() => ownerInputRef.current?.focus(), 100);
+                    }}
+                    style={{
+                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      padding: '8px 12px', border: 'none', borderRadius: 'var(--radius-sm)',
+                      background: clientMode === 'new' ? 'white' : 'transparent',
+                      color: clientMode === 'new' ? 'var(--primary)' : 'var(--gray-600)',
+                      fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer',
+                      boxShadow: clientMode === 'new' ? 'var(--shadow-sm)' : 'none',
+                      transition: 'all 150ms ease', fontFamily: 'inherit'
+                    }}
+                  >
+                    <UserPlus size={16} /> Novo Cliente
+                  </button>
+                </div>
+              )}
+
+              {/* Client selector */}
+              {clientMode === 'select' ? (
+                <div className="form-group">
+                  <label>Cliente *</label>
+                  <select value={form.clientId} onChange={e => setForm({ ...form, clientId: e.target.value })}>
+                    <option value="">Selecione um cliente</option>
+                    {clients.map(c => (
+                      <option key={c.id} value={c.id}>{c.name} {c.phone ? `- ${c.phone}` : ''}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div className="form-group">
+                  <label>Nome do Proprietário *</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      ref={ownerInputRef}
+                      type="text"
+                      value={form.ownerName}
+                      onChange={e => setForm({ ...form, ownerName: e.target.value })}
+                      placeholder="Ex: João Silva"
+                      style={{ paddingLeft: 36 }}
+                    />
+                    <UserPlus size={16} style={{
+                      position: 'absolute', left: 12, top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: 'var(--gray-400)', pointerEvents: 'none'
+                    }} />
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 4 }}>
+                    Se o cliente não existir, será criado automaticamente.
+                  </p>
+                </div>
+              )}
               <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
                 <div className="form-group">
                   <label>Marca *</label>
