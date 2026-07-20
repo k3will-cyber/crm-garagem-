@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getClient, createClient, updateClient } from '../api/clients';
 import { ArrowLeft, Save, Car, Plus, ChevronRight } from 'lucide-react';
+import { DRIVER_TYPES, DRIVER_TYPE_OPTIONS } from '../constants/driverTypes';
 
 export default function ClientForm() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function ClientForm() {
     cpfCnpj: '',
     whatsapp: '',
     birthDate: '',
+    driverType: 'convencional',
   });
 
   // CPF/CNPJ mask
@@ -56,6 +58,7 @@ export default function ClientForm() {
             cpfCnpj: c.cpfCnpj || '',
             whatsapp: c.whatsapp || '',
             birthDate: c.birthDate || '',
+            driverType: c.driverType || 'convencional',
           });
           setVehicles(c.vehicles || []);
         } catch (err) {
@@ -189,6 +192,22 @@ export default function ClientForm() {
                 value={form.birthDate}
                 onChange={handleChange}
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="driverType">Tipo de Motorista</label>
+              <select
+                id="driverType"
+                name="driverType"
+                value={form.driverType}
+                onChange={handleChange}
+              >
+                {DRIVER_TYPE_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {DRIVER_TYPES[opt.value]?.icon} {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>

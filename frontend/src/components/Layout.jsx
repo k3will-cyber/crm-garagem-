@@ -20,10 +20,12 @@ import {
   Activity,
   Calendar,
   UserCog,
+  Tag,
   Moon,
   Sun,
   Store,
   Car,
+  DollarSign,
 } from 'lucide-react';
 
 const ExternalLinkIcon = ({ size }) => (
@@ -134,6 +136,8 @@ export default function Layout() {
         { to: '/vehicles', label: 'Veículos', icon: Car },
         { to: '/meec-stock', label: 'Estoque MEEC', icon: Store },
         { to: '/stock-movements', label: 'Histórico Estoque', icon: Activity },
+        { to: '/daily-deals', label: 'Descontos do Dia', icon: Tag },
+        { to: '/finances', label: 'Financeiro', icon: DollarSign },
         { to: '/users', label: 'Usuários', icon: UserCog },
       ];
 

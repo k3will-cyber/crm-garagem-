@@ -38,6 +38,11 @@ const Client = sequelize.define('Client', {
   birthDate: {
     type: DataTypes.DATEONLY,
     allowNull: true
+  },
+  driverType: {
+    type: DataTypes.ENUM('convencional', 'app_uber', 'app_99', 'app_outro'),
+    defaultValue: 'convencional',
+    allowNull: true
   }
 }, {
   timestamps: true

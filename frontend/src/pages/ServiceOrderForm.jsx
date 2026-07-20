@@ -4,12 +4,15 @@ import { getServiceOrder, createServiceOrder, updateServiceOrder } from '../api/
 import { getClients } from '../api/clients';
 import { getServiceTypes } from '../api/serviceTypes';
 import { getParts } from '../api/parts';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, DollarSign } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ServiceOrderForm() {
   const { id } = useParams();
   const isEditing = !!id;
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isTechnician = user?.role === 'technician';
 
   const [clients, setClients] = useState([]);
   const [serviceTypes, setServiceTypes] = useState([]);
@@ -288,6 +291,37 @@ export default function ServiceOrderForm() {
                 {calculateTotal().toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </strong>
             </div>
+
+            {/* Commission Banner - visible for technicians */}
+            {isTechnician && calculateTotal() > 0 && (
+              <div style={{
+                marginTop: 12,
+                padding: '14px 16px',
+                background: 'linear-gradient(135deg, #f0fdf4, #ecfdf5)',
+                border: '1px solid #bbf7d0',
+                borderRadius: 'var(--radius-md)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12
+              }}>
+                <DollarSign size={24} style={{ color: '#16a34a' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, color: '#166534', fontSize: '0.9rem' }}>
+                    💰 Sua Comissão (30%)
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#15803d' }}>
+                    Valor estimado da comissão sobre mão de obra
+                  </div>
+                </div>
+                <div style={{
+                  fontSize: '1.3rem',
+                  fontWeight: 700,
+                  color: '#16a34a'
+                }}>
+                  {(calculateTotal() * 0.30).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="form-group">

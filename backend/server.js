@@ -13,6 +13,8 @@ const usersRoutes = require('./routes/users');
 const partRequestsRoutes = require('./routes/partRequests');
 const meecStockRoutes = require('./routes/meecStock');
 const vehicleRoutes = require('./routes/vehicles');
+const dailyDealRoutes = require('./routes/dailyDeals');
+const financeRoutes = require('./routes/finances');
 const { authenticateToken } = require('./middleware/auth');
 const { initSocket } = require('./socket');
 const { initNotificationService } = require('./services/notificationService');
@@ -50,6 +52,31 @@ app.get('/api/health', (req, res) => {
 app.use('/api/public', publicRoutes);
 app.use('/api/setup', setupRoutes);
 
+// Public daily deals (no auth required for GET active)
+app.get('/api/daily-deals/public/active', async (req, res) => {
+  try {
+    const db = require('./models');
+    const { Op } = db.Sequelize;
+    const today = new Date().toISOString().split('T')[0];
+    const deals = await db.DailyDeal.findAll({
+      where: {
+        isActive: true,
+        startDate: { [Op.lte]: today },
+        endDate: { [Op.gte]: today }
+      },
+      include: [
+        { model: db.ServiceType, as: 'serviceType', attributes: ['id', 'name', 'basePrice'] },
+        { model: db.Part, as: 'part', attributes: ['id', 'name', 'price', 'stockQuantity'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(deals);
+  } catch (err) {
+    console.error('[Public DailyDeal] Error:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/clients', authenticateToken, clientRoutes);
@@ -61,6 +88,8 @@ app.use('/api/users', usersRoutes);
 app.use('/api/part-requests', authenticateToken, partRequestsRoutes);
 app.use('/api/meec-stock', authenticateToken, meecStockRoutes);
 app.use('/api/vehicles', authenticateToken, vehicleRoutes);
+app.use('/api/daily-deals', authenticateToken, dailyDealRoutes);
+app.use('/api/finances', authenticateToken, financeRoutes);
 // Wildcard handler to serve React SPA
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
@@ -87,6 +116,22 @@ async function syncAndSeed() {
   try {
     await sequelize.sync();
     console.log('Database synced');
+
+    // Add missing columns for PostgreSQL (sync() doesn't ALTER TABLE in PG)
+    const dialect = sequelize.getDialect();
+    if (dialect === 'postgres' || dialect === 'postgresql') {
+      console.log('[DB] Running PostgreSQL column migrations...');
+      try {
+        await sequelize.query(`ALTER TABLE "Clients" ADD COLUMN IF NOT EXISTS "driverType" VARCHAR(20) DEFAULT 'convencional';`);
+        await sequelize.query(`ALTER TABLE "ServiceOrders" ADD COLUMN IF NOT EXISTS "commission" DECIMAL(10,2) DEFAULT 0.00;`);
+        await sequelize.query(`ALTER TABLE "ServiceOrders" ADD COLUMN IF NOT EXISTS "mechanicId" INTEGER REFERENCES "crm_users"("id");`);
+        console.log('[DB] Column migrations completed');
+      } catch (pgErr) {
+        // Some columns might already exist or table names might differ
+        console.log('[DB] Column migration note:', pgErr.message.substring(0, 100));
+      }
+    }
+
     await seedAdminUser();
     console.log('[Startup] CRM ready — admin exists, login enabled');
   } catch (err) {

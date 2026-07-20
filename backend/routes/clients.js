@@ -46,7 +46,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Create client
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, phone, email, address, status, source, notes, cpfCnpj, whatsapp, birthDate } = req.body;
+    const { name, phone, email, address, status, source, notes, cpfCnpj, whatsapp, birthDate, driverType } = req.body;
     const client = await db.Client.create({
       name,
       phone,
@@ -57,7 +57,8 @@ router.post('/', authMiddleware, async (req, res) => {
       notes,
       cpfCnpj,
       whatsapp,
-      birthDate
+      birthDate,
+      driverType
     });
     res.status(201).json(client);
   } catch (err) {
@@ -69,7 +70,7 @@ router.post('/', authMiddleware, async (req, res) => {
 // Update client
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { name, phone, email, address, status, source, notes, cpfCnpj, whatsapp, birthDate } = req.body;
+    const { name, phone, email, address, status, source, notes, cpfCnpj, whatsapp, birthDate, driverType } = req.body;
     let client = await db.Client.findByPk(req.params.id);
     if (!client) {
       return res.status(404).json({ msg: 'Client not found' });
@@ -84,7 +85,8 @@ router.put('/:id', authMiddleware, async (req, res) => {
       notes,
       cpfCnpj,
       whatsapp,
-      birthDate
+      birthDate,
+      driverType
     });
     res.json(client);
   } catch (err) {

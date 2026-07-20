@@ -1,11 +1,12 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import { Wrench, Menu, X, Phone, Mail, MapPin } from 'lucide-react';
 
 const navLinks = [
   { path: '/site', label: 'Início' },
   { path: '/site/servicos', label: 'Serviços' },
   { path: '/site/solicitar-orcamento', label: 'Solicitar Orçamento' },
+  { path: '/site/parceiros', label: 'Programa de Parceiros' },
 ];
 
 export default function SiteLayout({ children }) {
@@ -69,7 +70,7 @@ export default function SiteLayout({ children }) {
 
       {/* Main Content */}
       <main className="site-main">
-        {children}
+        <Outlet />
       </main>
 
       {/* Footer */}

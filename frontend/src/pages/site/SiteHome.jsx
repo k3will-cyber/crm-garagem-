@@ -1,6 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Wrench, Shield, Clock, Award, ChevronRight, Star, Users, CheckCircle, ArrowRight } from 'lucide-react';
+import { Wrench, Shield, Clock, Award, ChevronRight, Star, Users, CheckCircle, ArrowRight, Play, Camera, ExternalLink } from 'lucide-react';
+
+const galleryImages = [
+  { title: 'Diagnóstico Computadorizado', desc: 'Utilizamos scanner profissional para diagnóstico preciso do seu veículo.', color: '#3b82f6', icon: '🔧' },
+  { title: 'Troca de Óleo', desc: 'Óleos sintéticos e filtros de alta qualidade para maior vida do motor.', color: '#10b981', icon: '🛢️' },
+  { title: 'Alinhamento e Balanceamento', desc: 'Equipamento de última geração para garantir a estabilidade do veículo.', color: '#8b5cf6', icon: '⚙️' },
+  { title: 'Freios e Suspensão', desc: 'Diagnóstico completo com substituição de componentes originais.', color: '#f59e0b', icon: '🛞' },
+  { title: 'Ar Condicionado', desc: 'Recarga de gás e manutenção do sistema de climatização.', color: '#ef4444', icon: '❄️' },
+  { title: 'Revisão Programada', desc: 'Check-up completo seguindo rigorosamente o plano do fabricante.', color: '#06b6d4', icon: '📋' },
+];
 
 const services = [
   { icon: Wrench, title: 'Troca de Óleo', desc: 'Óleo sintético e filtros de alta qualidade para maior durabilidade do motor.' },
@@ -128,6 +137,54 @@ export default function SiteHome() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Garagem em Ação Section */}
+      <section className="site-section site-garage-section">
+        <div className="site-container">
+          <div className="site-section-header">
+            <h2>🔧 A Garagem em Ação</h2>
+            <p>Veja como cuidamos do seu veículo com excelência e dedicação</p>
+          </div>
+          <div className="site-garage-grid">
+            {galleryImages.map((item, i) => (
+              <div key={i} className="site-garage-card" style={{ '--card-color': item.color }}>
+                <div className="site-garage-card-image" style={{ background: `linear-gradient(135deg, ${item.color}15, ${item.color}08)` }}>
+                  <span className="site-garage-card-icon">{item.icon}</span>
+                </div>
+                <div className="site-garage-card-content">
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </div>
+                <div className="site-garage-card-hover">
+                  <Camera size={20} />
+                  <span>Ver Fotos</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Programa de Parceiros CTA */}
+      <section className="site-section site-partners-cta-section">
+        <div className="site-container">
+          <div className="site-partners-cta-card">
+            <div className="site-partners-cta-content">
+              <h2>🎯 Programa de Parceiros MEEC</h2>
+              <p>Seja um parceiro oficial da Garagem do MEEC e transforme sua paixão por carros em negócio!</p>
+              <div className="site-partners-cta-features">
+                <span><CheckCircle size={16} /> Comissão exclusiva por indicação</span>
+                <span><CheckCircle size={16} /> Descontos especiais para parceiros</span>
+                <span><CheckCircle size={16} /> Acesso antecipado a promoções</span>
+                <span><CheckCircle size={16} /> Suporte dedicado</span>
+              </div>
+              <Link to="/site/parceiros" className="site-btn site-btn-primary site-btn-lg">
+                <ExternalLink size={20} /> Quero Ser Parceiro
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getServiceOrder, updateServiceOrderStatus } from '../api/serviceOrders';
 import api from '../api/axios';
 import { useToast } from '../contexts/ToastContext';
-import { ArrowLeft, Edit2, Printer, Share2, MessageCircle, CheckCircle, XCircle, Send, Clock, AlertCircle, Copy, RefreshCw, Bell, BellOff } from 'lucide-react';
+import { ArrowLeft, Edit2, Printer, Share2, MessageCircle, CheckCircle, XCircle, Send, Clock, AlertCircle, Copy, RefreshCw, Bell, BellOff, DollarSign, User } from 'lucide-react';
 
 const statusColors = {
   draft: 'badge-gray',
@@ -296,6 +296,35 @@ export default function ServiceOrderDetail() {
         )}
 
         {/* Items */}
+        {/* Mechanic & Commission */}
+        {order.commission > 0 && (
+          <div className="detail-section">
+            <h3>💰 Comissão do Mecânico</h3>
+            <div className="detail-field">
+              <span className="detail-label">
+                <User size={14} style={{ marginRight: 4 }} />
+                Mecânico Responsável
+              </span>
+              <span className="detail-value">{order.mechanic?.name || order['mechanic.name'] || '—'}</span>
+            </div>
+            <div className="detail-field">
+              <span className="detail-label">
+                <DollarSign size={14} style={{ marginRight: 4 }} />
+                Comissão (30%)
+              </span>
+              <span className="detail-value" style={{ color: 'var(--success)', fontWeight: 700 }}>
+                {Number(order.commission).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              </span>
+            </div>
+            <div className="detail-field">
+              <span className="detail-label">Valor Total da OS</span>
+              <span className="detail-value">
+                {Number(order.totalAmount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              </span>
+            </div>
+          </div>
+        )}
+
         {order.items && order.items.length > 0 && (
           <div className="detail-section">
             <h3>Peças Utilizadas</h3>

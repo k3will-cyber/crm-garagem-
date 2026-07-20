@@ -3,7 +3,8 @@ import axios from 'axios';
 import {
   Wrench, Search, Package, ShoppingCart, Phone, MapPin,
   Clock, ChevronRight, Star, X, Filter, ChevronDown,
-  Truck, Shield, CreditCard, CheckCircle, AlertCircle
+  Truck, Shield, CreditCard, CheckCircle, AlertCircle,
+  Percent, Tag, Calendar
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -47,6 +48,23 @@ export default function MeecStore() {
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const [sortBy, setSortBy] = useState('name');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [deals, setDeals] = useState([]);
+  const [dealsLoading, setDealsLoading] = useState(true);
+
+  // Fetch active daily deals
+  useEffect(() => {
+    const fetchDeals = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/daily-deals/public/active`);
+        setDeals(res.data);
+      } catch (err) {
+        console.error('Erro ao carregar ofertas:', err);
+      } finally {
+        setDealsLoading(false);
+      }
+    };
+    fetchDeals();
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -133,6 +151,70 @@ export default function MeecStore() {
           </span>
         </div>
       </div>
+
+      {/* Meec Ofertas Section */}
+      {!dealsLoading && deals.length > 0 && (
+        <section className="store-deals-section">
+          <div className="store-container">
+            <div className="store-deals-header">
+              <div className="store-deals-header-left">
+                <Tag size={24} style={{ color: '#ef4444' }} />
+                <div>
+                  <h2>🔥 MEEC Ofertas</h2>
+                  <p>Ofertas especiais por tempo limitado — aproveite!</p>
+                </div>
+              </div>
+            </div>
+            <div className="store-deals-grid">
+              {deals.map(deal => (
+                <div key={deal.id} className="store-deal-card" style={{ borderTop: `4px solid ${deal.highlightColor || '#ef4444'}` }}>
+                  <div className="store-deal-badge" style={{ background: deal.highlightColor || '#ef4444' }}>
+                    {deal.badgeText || 'Oferta'}
+                  </div>
+                  <div className="store-deal-content">
+                    <h3>{deal.title}</h3>
+                    {deal.description && <p className="store-deal-desc">{deal.description}</p>}
+                    <div className="store-deal-pricing">
+                      {deal.discountPercentage > 0 && (
+                        <span className="store-deal-discount-badge">
+                          <Percent size={14} /> {deal.discountPercentage}% OFF
+                        </span>
+                      )}
+                      {deal.originalPrice > 0 && (
+                        <span className="store-deal-original-price">
+                          De: {Number(deal.originalPrice).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </span>
+                      )}
+                      {deal.discountedPrice > 0 && (
+                        <span className="store-deal-price">
+                          Por: <strong>{Number(deal.discountedPrice).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+                        </span>
+                      )}
+                    </div>
+                    {deal.endDate && (
+                      <div className="store-deal-validity">
+                        <Calendar size={12} />
+                        Válido até {new Date(deal.endDate).toLocaleDateString('pt-BR')}
+                      </div>
+                    )}
+                    <button
+                      className="store-btn store-btn-sm store-btn-primary store-deal-cta"
+                      onClick={() => {
+                        const msg = encodeURIComponent(
+                          `Olá! Tenho interesse na oferta: ${deal.title}${deal.discountedPrice ? ` - ${Number(deal.discountedPrice).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : ''}\n\n(via MEEC Ofertas)`
+                        );
+                        window.open(`https://wa.me/5561981257477?text=${msg}`, '_blank');
+                      }}
+                    >
+                      <Phone size={14} /> Aproveitar Oferta
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Header / Navigation */}
       <header className="store-header">

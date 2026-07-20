@@ -23,7 +23,14 @@ import MeecStock from './pages/MeecStock';
 import MeecStore from './pages/MeecStore';
 import Vehicles from './pages/Vehicles';
 import MechanicsDashboard from './pages/MechanicsDashboard';
+import DailyDeals from './pages/DailyDeals';
+import Finances from './pages/Finances';
 import ClientOrderView from './pages/ClientOrderView';
+import SiteLayout from './pages/site/SiteLayout';
+import SiteHome from './pages/site/SiteHome';
+import SiteServices from './pages/site/SiteServices';
+import SiteLeadForm from './pages/site/SiteLeadForm';
+import SitePartners from './pages/site/SitePartners';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
@@ -47,6 +54,14 @@ export default function App() {
 
   return (
     <Routes>
+      {/* Site pages */}
+      <Route path="/site" element={<SiteLayout />}>
+        <Route index element={<SiteHome />} />
+        <Route path="servicos" element={<SiteServices />} />
+        <Route path="solicitar-orcamento" element={<SiteLeadForm />} />
+        <Route path="parceiros" element={<SitePartners />} />
+      </Route>
+
       {/* Public routes */}
       <Route path="/public/os/:shareToken" element={<ClientOrderView />} />
       <Route path="/meec-store" element={<MeecStore />} />
@@ -70,6 +85,10 @@ export default function App() {
         <Route path="parts-store" element={<PartsStore />} />
         <Route path="meec-stock" element={<MeecStock />} />
         <Route path="vehicles" element={<Vehicles />} />
+        <Route path="daily-deals" element={<DailyDeals />} />
+        
+        {/* Manager+ routes */}
+        <Route path="finances" element={<ProtectedRoute requiredRole="manager"><Finances /></ProtectedRoute>} />
         
         {/* Manager+ routes */}
         <Route path="clients" element={<ProtectedRoute requiredRole="manager"><Clients /></ProtectedRoute>} />

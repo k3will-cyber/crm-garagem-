@@ -46,6 +46,17 @@ const ServiceOrder = sequelize.define('ServiceOrder', {
     allowNull: false,
     defaultValue: 0.00
   },
+  commission: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    defaultValue: 0.00,
+    comment: '30% commission for the mechanic assigned to this OS'
+  },
+  mechanicId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'User ID of the mechanic responsible for this OS'
+  },
   notes: {
     type: DataTypes.TEXT
   },
@@ -82,6 +93,10 @@ ServiceOrder.associate = (models) => {
   ServiceOrder.hasMany(models.StatusHistory, {
     foreignKey: 'serviceOrderId',
     as: 'statusHistory'
+  });
+  ServiceOrder.belongsTo(models.User, {
+    foreignKey: 'mechanicId',
+    as: 'mechanic'
   });
 };
 

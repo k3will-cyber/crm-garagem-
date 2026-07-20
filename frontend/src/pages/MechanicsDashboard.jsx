@@ -6,7 +6,7 @@ import { getPartRequests } from '../api/partRequests';
 import { getParts } from '../api/parts';
 import {
   FileText, Wrench, Package, Clock, AlertTriangle,
-  ShoppingCart
+  ShoppingCart, DollarSign, TrendingUp
 } from 'lucide-react';
 
 const statusLabels = {
@@ -34,6 +34,15 @@ export default function MechanicsDashboard() {
   const [myRequests, setMyRequests] = useState([]);
   const [lowStock, setLowStock] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Calculate commission totals
+  const myCompletedOrders = orders.filter(o => 
+    o.mechanicId === user?.id && ['completed', 'delivered'].includes(o.status)
+  );
+  const totalCommission = myCompletedOrders.reduce((sum, o) => sum + parseFloat(o.commission || 0), 0);
+  const pendingCommission = orders
+    .filter(o => o.mechanicId === user?.id && o.status === 'in-progress')
+    .reduce((sum, o) => sum + parseFloat(o.commission || 0), 0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,6 +113,24 @@ export default function MechanicsDashboard() {
           </div>
         </div>
 
+        {/* Commission Card */}
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: '#f0fdf4', color: '#16a34a' }}>
+            <DollarSign size={24} />
+          </div>
+          <div className="stat-info">
+            <span className="stat-value" style={{ color: '#16a34a' }}>
+              {totalCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
+            <span className="stat-title">Comissão Recebida (30%)</span>
+            {pendingCommission > 0 && (
+              <span className="stat-subtitle">
+                {pendingCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} em andamento
+              </span>
+            )}
+          </div>
+        </div>
+
         <div className="stat-card">
           <div className="stat-icon" style={{ backgroundColor: '#fdf2f8', color: '#ec4899' }}>
             <ShoppingCart size={24} />
@@ -121,6 +148,17 @@ export default function MechanicsDashboard() {
           <div className="stat-info">
             <span className="stat-value">{lowStock.length}</span>
             <span className="stat-title">Peças em Alerta</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: '#f5f3ff', color: '#7c3aed' }}>
+            <TrendingUp size={24} />
+          </div>
+          <div className="stat-info">
+            <span className="stat-value">{myCompletedOrders.length}</span>
+            <span className="stat-title">OS Concluídas</span>
+            <span className="stat-subtitle">Com comissão recebida</span>
           </div>
         </div>
       </div>

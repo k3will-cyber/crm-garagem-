@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getClients, deleteClient } from '../api/clients';
 import { Users, Plus, Search, Edit2, Trash2, Phone, Mail, AlertCircle, Car } from 'lucide-react';
+import { DRIVER_TYPES } from '../constants/driverTypes';
 
 export default function Clients() {
   const [clients, setClients] = useState([]);
@@ -85,6 +86,7 @@ export default function Clients() {
             <thead>
               <tr>
                 <th>Nome</th>
+                <th>Tipo</th>
                 <th>CPF/CNPJ</th>
                 <th>Telefone</th>
                 <th>Email</th>
@@ -98,9 +100,20 @@ export default function Clients() {
               {filtered.map((client) => (
                 <tr key={client.id}>
                   <td>
-                    <span className="table-link" onClick={() => navigate(`/clients/${client.id}/edit`)}>
-                      {client.name}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span className="table-link" onClick={() => navigate(`/clients/${client.id}/edit`)}>
+                        {client.name}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    {client.driverType && DRIVER_TYPES[client.driverType]?.showTag ? (
+                      <span className={`badge ${DRIVER_TYPES[client.driverType]?.badgeClass || 'badge-gray'}`}>
+                        {DRIVER_TYPES[client.driverType]?.icon} {DRIVER_TYPES[client.driverType]?.tagLabel}
+                      </span>
+                    ) : (
+                      <span className="text-muted" style={{ fontSize: 13 }}>—</span>
+                    )}
                   </td>
                   <td style={{ fontSize: 13 }}>
                     {client.cpfCnpj ? (

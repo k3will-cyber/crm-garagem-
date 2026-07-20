@@ -1375,6 +1375,22 @@ img { max-width: 100%; }
   color: var(--gray-600);
 }
 
+/* Driver Type Badges */
+.badge-app-uber {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-app-99 {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-app-outro {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
 .priority-badge {
   display: inline-flex;
   align-items: center;
@@ -2283,6 +2299,245 @@ img { max-width: 100%; }
 
   .login-card {
     padding: 24px;
+  }
+}
+
+/* ============================================
+   Daily Deals Card Styles
+   ============================================ */
+.deal-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.deal-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.deal-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.deal-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.deal-card-title-row h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.deal-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.deal-card-desc {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+  line-height: 1.5;
+}
+
+.deal-card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.deal-card-detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--gray-600);
+  background: var(--gray-50);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.deal-card-status {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.deal-card-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 12px;
+}
+
+/* ============================================
+   MEEC Ofertas - Public Store Deals Section
+   ============================================ */
+.store-deals-section {
+  padding: 40px 0;
+  background: linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fffbeb 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.store-deals-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.store-deals-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.store-deals-header-left h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #991b1b;
+}
+
+.store-deals-header-left p {
+  color: var(--gray-500);
+  font-size: 0.875rem;
+  margin-top: 2px;
+}
+
+.store-deals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.store-deal-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+  transition: all var(--transition);
+  position: relative;
+}
+
+.store-deal-card:hover {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.store-deal-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  z-index: 1;
+}
+
+.store-deal-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.store-deal-content h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  padding-right: 80px;
+}
+
+.store-deal-desc {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+  line-height: 1.5;
+}
+
+.store-deal-pricing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.store-deal-discount-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dcfce7;
+  color: #166534;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.store-deal-original-price {
+  font-size: 0.85rem;
+  color: var(--gray-400);
+  text-decoration: line-through;
+}
+
+.store-deal-price {
+  font-size: 1rem;
+  color: var(--success);
+}
+
+.store-deal-price strong {
+  font-size: 1.2rem;
+}
+
+.store-deal-validity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--gray-400);
+}
+
+.store-deal-cta {
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+@media (max-width: 640px) {
+  .store-deals-grid {
+    grid-template-columns: 1fr;
+  }
+  .store-deals-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 }
 
@@ -4257,6 +4512,504 @@ img { max-width: 100%; }
   display: flex;
   gap: 12px;
   justify-content: center;
+}
+
+/* ============================================
+   Garagem em Ação Section
+   ============================================ */
+.site-garage-section {
+  background: #f8fafc;
+}
+
+.site-garage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.site-garage-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.site-garage-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+
+.site-garage-card-image {
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.site-garage-card-icon {
+  font-size: 3.5rem;
+  transition: transform 0.3s ease;
+}
+
+.site-garage-card:hover .site-garage-card-icon {
+  transform: scale(1.15);
+}
+
+.site-garage-card-content {
+  padding: 20px;
+}
+
+.site-garage-card-content h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.site-garage-card-content p {
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.site-garage-card-hover {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.site-garage-card:hover .site-garage-card-hover {
+  opacity: 1;
+}
+
+/* ============================================
+   Partners CTA Section (Home)
+   ============================================ */
+.site-partners-cta-section {
+  background: white;
+}
+
+.site-partners-cta-card {
+  background: linear-gradient(135deg, #1e3a5f, #0f172a);
+  border-radius: 20px;
+  padding: 48px;
+}
+
+.site-partners-cta-content {
+  text-align: center;
+}
+
+.site-partners-cta-content h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.site-partners-cta-content p {
+  color: #94a3b8;
+  font-size: 1.05rem;
+  margin-bottom: 24px;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.site-partners-cta-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.site-partners-cta-features span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  background: rgba(255,255,255,0.06);
+  padding: 8px 16px;
+  border-radius: 100px;
+}
+
+@media (max-width: 640px) {
+  .site-partners-cta-card {
+    padding: 32px 20px;
+  }
+  .site-partners-cta-content h2 {
+    font-size: 1.4rem;
+  }
+  .site-garage-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   Programa de Parceiros Page
+   ============================================ */
+.partners-page {}
+
+.partners-hero {
+  position: relative;
+  padding: 80px 0;
+  overflow: hidden;
+}
+
+.partners-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1a1a2e 100%);
+}
+
+.partners-hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.partners-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(37,99,235,0.2);
+  color: #60a5fa;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border: 1px solid rgba(37,99,235,0.3);
+}
+
+.partners-hero-content h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.partners-hero-highlight {
+  color: #60a5fa;
+}
+
+.partners-hero-content p {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.partners-hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.partners-hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.06);
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.partners-hero-stat strong {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+.partners-hero-stat span {
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+/* Benefits */
+.partners-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.partners-benefit-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 28px;
+  transition: all 0.3s ease;
+}
+
+.partners-benefit-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  border-color: #2563eb20;
+}
+
+.partners-benefit-icon {
+  width: 48px;
+  height: 48px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.partners-benefit-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.partners-benefit-card p {
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* How it Works */
+.partners-how-section {
+  background: #f8fafc;
+}
+
+.partners-steps {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.partners-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  flex: 1;
+  min-width: 240px;
+  max-width: 320px;
+  position: relative;
+}
+
+.partners-step-number {
+  width: 40px;
+  height: 40px;
+  background: #2563eb;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.partners-step-content h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.partners-step-content p {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.partners-step-arrow {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .partners-steps {
+    flex-wrap: nowrap;
+  }
+  .partners-step {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    padding: 32px 24px;
+  }
+}
+
+/* QR Section */
+.partners-qr-section {
+  background: white;
+}
+
+.partners-qr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.partners-qr-content h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+.partners-qr-content p {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.partners-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.partners-whatsapp-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.partners-whatsapp-btn:hover {
+  background: #20bd5a;
+  transform: translateY(-1px);
+}
+
+.partners-link-display {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  word-break: break-all;
+}
+
+.partners-link-display span {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.partners-link-display code {
+  font-size: 0.82rem;
+  color: #2563eb;
+  background: transparent;
+}
+
+.partners-qr-code {
+  display: flex;
+  justify-content: center;
+}
+
+.partners-qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.partners-qr-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.partners-qr-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.partners-final-cta {
+  text-align: center;
+  padding: 48px 24px;
+  background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+  border-radius: 20px;
+}
+
+.partners-final-cta h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+.partners-final-cta p {
+  color: #64748b;
+  font-size: 1rem;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .partners-qr-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .partners-qr-code {
+    order: -1;
+  }
+  .partners-hero-content h1 {
+    font-size: 1.8rem;
+  }
+  .partners-actions {
+    flex-direction: column;
+  }
 }
 
 /* ============================================

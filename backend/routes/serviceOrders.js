@@ -22,7 +22,8 @@ router.get('/', authMiddleware, async (req, res) => {
       include: [
         { model: db.Client, as: 'client' },
         { model: db.ServiceType, as: 'serviceType' },
-        { model: db.ServiceOrderItem, as: 'items', include: [{ model: db.Part, as: 'part' }] }
+        { model: db.ServiceOrderItem, as: 'items', include: [{ model: db.Part, as: 'part' }] },
+        { model: db.User, as: 'mechanic', attributes: ['id', 'name'] }
       ],
       order: [['createdAt', 'DESC']]
     });
@@ -40,7 +41,8 @@ router.get('/:id', authMiddleware, async (req, res) => {
       include: [
         { model: db.Client, as: 'client' },
         { model: db.ServiceType, as: 'serviceType' },
-        { model: db.ServiceOrderItem, as: 'items', include: [{ model: db.Part, as: 'part' }] }
+        { model: db.ServiceOrderItem, as: 'items', include: [{ model: db.Part, as: 'part' }] },
+        { model: db.User, as: 'mechanic', attributes: ['id', 'name'] }
       ]
     });
     if (!serviceOrder) {
@@ -81,6 +83,9 @@ router.post('/', authMiddleware, async (req, res) => {
       isUnique = !existing;
     }
 
+    // Determine mechanic (current user if technician, or assigned)
+    const mechanicId = req.user.user.role === 'technician' ? req.user.user.id : (req.body.mechanicId || null);
+
     // Create service order
     const serviceOrder = await db.ServiceOrder.create(
       {
@@ -91,7 +96,8 @@ router.post('/', authMiddleware, async (req, res) => {
         scheduledDate,
         priority,
         notes,
-        status: 'draft'
+        status: 'draft',
+        mechanicId
       },
       { transaction }
     );
@@ -134,10 +140,13 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 
     // Add base service price
-    totalAmount += serviceType.basePrice || 0;
+    totalAmount += parseFloat(serviceType.basePrice) || 0;
 
-    // Update service order with total amount
-    await serviceOrder.update({ totalAmount }, { transaction });
+    // Calculate 30% commission for the mechanic
+    const commission = totalAmount * 0.30;
+
+    // Update service order with total amount and commission
+    await serviceOrder.update({ totalAmount, commission }, { transaction });
 
     await transaction.commit();
 
@@ -146,7 +155,8 @@ router.post('/', authMiddleware, async (req, res) => {
       include: [
         { model: db.Client, as: 'client' },
         { model: db.ServiceType, as: 'serviceType' },
-        { model: db.ServiceOrderItem, as: 'items', include: [{ model: db.Part, as: 'part' }] }
+        { model: db.ServiceOrderItem, as: 'items', include: [{ model: db.Part, as: 'part' }] },
+        { model: db.User, as: 'mechanic', attributes: ['id', 'name'] }
       ]
     });
 
@@ -197,6 +207,11 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (notes !== undefined) updateData.notes = notes;
     if (status) updateData.status = status;
 
+    // Assign mechanic if not already set
+    if (!serviceOrder.mechanicId && req.user.user.role === 'technician') {
+      updateData.mechanicId = req.user.user.id;
+    }
+
     await serviceOrder.update(updateData, { transaction });
 
     // Handle items if provided
@@ -237,10 +252,13 @@ router.put('/:id', authMiddleware, async (req, res) => {
         serviceTypeId || serviceOrder.serviceTypeId,
         { transaction }
       );
-      totalAmount += serviceType.basePrice || 0;
+      totalAmount += parseFloat(serviceType.basePrice) || 0;
 
-      // Update total amount
-      await serviceOrder.update({ totalAmount }, { transaction });
+      // Calculate 30% commission for the mechanic
+      const commission = totalAmount * 0.30;
+
+      // Update total amount and commission
+      await serviceOrder.update({ totalAmount, commission }, { transaction });
     }
 
     await transaction.commit();
@@ -250,7 +268,8 @@ router.put('/:id', authMiddleware, async (req, res) => {
       include: [
         { model: db.Client, as: 'client' },
         { model: db.ServiceType, as: 'serviceType' },
-        { model: db.ServiceOrderItem, as: 'items', include: [{ model: db.Part, as: 'part' }] }
+        { model: db.ServiceOrderItem, as: 'items', include: [{ model: db.Part, as: 'part' }] },
+        { model: db.User, as: 'mechanic', attributes: ['id', 'name'] }
       ]
     });
 
